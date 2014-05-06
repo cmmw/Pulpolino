@@ -45,12 +45,16 @@ private:
 	std::mutex _go;
 	std::atomic<bool> _stop;
 	std::atomic<bool> _quit;
+	uint32_t _depth;
 
 	BOARD_T _board;
 	MOVGEN_T _movegen;
 
 	void _run();
-	void _start_calc();
+	void _think();
+	int32_t _search(uint32_t depth);
+	typename BOARD_T::Color_t _aicolor;
+	typename BOARD_T::GenMove_t _bestmove;
 
 };
 

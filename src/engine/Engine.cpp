@@ -17,7 +17,7 @@ namespace eng
 
 template<class BOARD_T, class MOVGEN_T>
 Engine<BOARD_T, MOVGEN_T>::Engine() :
-		_stop(false), _quit(false)
+		_stop(false), _quit(false), _depth(1)
 {
 	this->_go.lock();
 }
@@ -59,24 +59,50 @@ void Engine<BOARD_T, MOVGEN_T>::_run()
 		{
 			break;
 		}
-		this->_start_calc();
+		this->_think();
 	}
 }
 
 template<class BOARD_T, class MOVGEN_T>
-void Engine<BOARD_T, MOVGEN_T>::_start_calc()
+void Engine<BOARD_T, MOVGEN_T>::_think()
 {
 	this->_stop.store(false);
-	while (!this->_stop.load())
+	/* TODO call search in a iterative deepening manner (mabye?)*/
+	this->_aicolor = this->_board.get_color();
+	this->_search(this->_depth);
+	this->_stop.store(false);
+}
+
+/*minimax in negamax fashion*/
+template<class BOARD_T, class MOVGEN_T>
+int32_t Engine<BOARD_T, MOVGEN_T>::_search(uint32_t depth)
+{
+
+	/*TODO finish*/
+
+	if (depth == 0 || this->_stop.load())
 	{
-		g_log << "info string calculating..." << std::endl;
-		std::this_thread::sleep_for(std::chrono::seconds(1));
+		/*evaluate position (this->_this->_board)*/
+		/* val = eval(this->_board); */
+		//return eval(this->_board);
 	}
 
-	if (!this->_quit.load())
-		g_log << "bestmove a2a3" << std::endl;
-
-	this->_stop.store(false);
+	int32_t max = -100000;
+	std::vector<typename BOARD_T::GenMove_t> moves;
+	this->_movegen.gen_moves(this->_board, moves);
+	for (typename std::vector<typename BOARD_T::GenMove_t>::iterator it = moves.begin(); it != moves.end(); it++)
+	{
+		int32_t val;
+		this->_board.move(*it);
+		val = -this->_search(depth - 1);
+		this->_board.take_back();
+		if (val > max)
+		{
+			max = val;
+			this->_bestmove = *it;		//only needed on the highest recursion level, before exiting the function
+		}
+	}
+	return max;
 }
 
 template<class BOARD_T, class MOVGEN_T>

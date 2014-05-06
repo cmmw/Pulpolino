@@ -27,17 +27,17 @@ void test_gen()
 	eng::Board board;
 	eng::MoveGenerator<eng::Board> gen;
 	std::vector<eng::Board::GenMove_t> moves;
-	gen.generate_moves(board, moves, eng::Board::WHITE);
+	gen.gen_moves(board, moves);
 	g_log << "moves calculated: " << moves.size() << std::endl;
 }
 
 int main()
 {
-	test_gen();
+//	test_gen();
 
-//	std::thread th(uci_input_th);
-//	engine.start();
-//	th.join();
+	std::thread th(uci_input_th);
+	engine.start();
+	th.join();
 	return 0;
 }
 

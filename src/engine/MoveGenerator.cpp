@@ -14,19 +14,21 @@ namespace eng
 {
 
 template<class BOARD_T>
-void MoveGenerator<BOARD_T>::generate_moves(BOARD_T& board, std::vector<typename BOARD_T::GenMove_t>& moves, typename BOARD_T::Color_t c)
+void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOARD_T::GenMove_t>& moves)
 {
 	typename BOARD_T::Piece_t piece;
 	typename BOARD_T::Color_t color;
+	typename BOARD_T::Color_t c1;
 	typename BOARD_T::Color_t c2;
 
-	c2 = (c == BOARD_T::WHITE) ? BOARD_T::BLACK : BOARD_T::WHITE;
+	c1 = board.get_color();
+	c2 = (c1 == BOARD_T::WHITE) ? BOARD_T::BLACK : BOARD_T::WHITE;
 
 	for (int i = 0; i < 64; i++)
 	{
 		color = board.get_color(i);
 		piece = board.get_piece(i);
-		if (color == c && piece != BOARD_T::EMPTY)
+		if (color == c1 && piece != BOARD_T::EMPTY)
 		{
 			if (piece != BOARD_T::PAWN)
 			{
@@ -60,7 +62,7 @@ void MoveGenerator<BOARD_T>::generate_moves(BOARD_T& board, std::vector<typename
 			else /*PAWN*/
 			{
 				int32_t step;
-				step = (c == BOARD_T::WHITE) ? 1 : -1;
+				step = (c1 == BOARD_T::WHITE) ? 1 : -1;
 				if (board.get_piece(i + step * 8) == BOARD_T::EMPTY)
 				{
 					moves.push_back(board.gen_mov(i, i + step * 8));

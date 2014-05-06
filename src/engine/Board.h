@@ -32,8 +32,8 @@ public:
 
 	struct GenMove_t
 	{
-		uint32_t from;
-		uint32_t to;
+		uint8_t from;
+		uint8_t to;
 	};
 
 	enum Color_t
@@ -47,6 +47,7 @@ public:
 	};
 
 	Board();
+	Board(Color_t c);
 	~Board() = default;
 
 	Board(Board&&) = delete;
@@ -61,29 +62,35 @@ public:
 	void clear_history();
 	bool take_back();
 
-	inline Color_t get_color(int32_t idx)
+	inline Color_t get_color(int8_t idx)
 	{
 		return static_cast<Color_t>(this->_board[idx] & COLOR);
 	}
 
-	inline Piece_t get_piece(uint32_t idx)
+	inline Piece_t get_piece(uint8_t idx)
 	{
 		return static_cast<Piece_t>(this->_board[idx] & PIECE);
 	}
 
-	inline bool has_moved(uint32_t idx)
+	inline bool has_moved(uint8_t idx)
 	{
 		return static_cast<bool>(this->_board[idx] & MOVED) && ((this->_board[idx] & PIECE) != EMPTY);
 	}
 
-	inline GenMove_t gen_mov(uint32_t from, uint32_t to)
+	inline GenMove_t gen_mov(uint8_t from, uint8_t to)
 	{
 		return {from, to};
+	}
+
+	inline Color_t get_color()
+	{
+		return this->_color;
 	}
 
 private:
 
 	std::vector<Move_t> _history;
+	Color_t _color;
 
 	square_t _board[64] =
 			{ 0 };

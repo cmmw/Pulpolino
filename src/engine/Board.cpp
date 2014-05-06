@@ -24,9 +24,15 @@ const uint8_t Board::init_board[] =
 				ROOK | BLACK, KNIGHT | BLACK, BISHOP | BLACK, QUEEN | BLACK, KING | BLACK, BISHOP | BLACK, KNIGHT | BLACK, ROOK | BLACK
 		};
 
-Board::Board()
+Board::Board() : _color(WHITE)
 {
 	this->reset_board();
+}
+
+Board::Board(Color_t c)
+{
+	this->reset_board();
+	this->_color = c;
 }
 
 void Board::print_board()
@@ -88,6 +94,7 @@ void Board::move(uint8_t from, uint8_t to)
 	this->_board[m.to] = m.orig | MOVED;
 	this->_board[m.from] = EMPTY;
 	this->_history.push_back(m);
+	this->_color = (this->_color == WHITE) ? BLACK : WHITE;
 }
 
 void Board::clear_history()
@@ -104,6 +111,7 @@ bool Board::take_back()
 	this->_history.pop_back();
 	this->_board[m.from] = m.orig;
 	this->_board[m.to] = m.capture;
+	this->_color = (this->_color == WHITE) ? BLACK : WHITE;
 	return true;
 }
 
