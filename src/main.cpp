@@ -43,6 +43,7 @@ int main()
 
 void uci_input_th()
 {
+	/*todo: finish implementation of uci commands*/
 	bool quit;
 	while (!quit)
 	{

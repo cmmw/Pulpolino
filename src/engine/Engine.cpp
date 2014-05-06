@@ -78,7 +78,7 @@ template<class BOARD_T, class MOVGEN_T>
 int32_t Engine<BOARD_T, MOVGEN_T>::_search(uint32_t depth)
 {
 
-	/*TODO finish*/
+	/*TODO finish negamax search*/
 
 	if (depth == 0 || this->_stop.load())
 	{
@@ -119,7 +119,7 @@ void Engine<BOARD_T, MOVGEN_T>::position(const std::string& pos)
 		}
 		else if (!it->compare("fen"))
 		{
-			/* TODO finish implementation */
+			/* TODO finish implementation of uci command fen */
 		}
 		else if (!it->compare("moves"))
 		{
