@@ -79,7 +79,7 @@ void Board::move(const GenMove_t& move)
 
 void Board::move(uint8_t from, uint8_t to)
 {
-	/* TODO finish implementation (e.p., moved, castle... etc) */
+	/* TODO finish implementation (e.p., promotion, castle... etc) */
 	Move_t m;
 	m.capture = this->_board[to];
 	m.from = from;
