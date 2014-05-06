@@ -1,0 +1,62 @@
+/*
+ * Engine.h
+ *
+ *  Created on: 04.05.2014
+ *      Author: Christian
+ */
+
+#ifndef ENGINE_H_
+#define ENGINE_H_
+
+#include <mutex>
+#include <atomic>
+#include "Board.h"
+#include "MoveGenerator.h"
+
+namespace eng
+{
+
+template<class BOARD_T, class MOVGEN_T>
+class Engine
+{
+public:
+	Engine();
+	~Engine() = default;
+
+	Engine(Engine&&) = delete;
+	Engine(const Engine&) = delete;
+	Engine& operator=(const Engine& other) = delete;
+
+	/*starts the engines main loop*/
+	void start();
+
+	/*call when uci command go is received, will start the calculation of the current position*/
+	void go();
+	/*call when uci command stop is received, will stop the calculation*/
+	void stop();
+
+	/*call when uci command quit is received, will destroy the engine*/
+	void quit();
+
+	/*call when uci command position is received, will set position on the board, argument = received string from gui (including "position")*/
+	void position(const std::string& pos);
+
+private:
+	std::mutex _go;
+	std::atomic<bool> _stop;
+	std::atomic<bool> _quit;
+
+	BOARD_T _board;
+	MOVGEN_T _movegen;
+
+	void _run();
+	void _start_calc();
+
+};
+
+} /* namespace eng */
+
+
+#include "Engine.cpp"
+
+#endif /* ENGINE_H_ */
