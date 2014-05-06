@@ -53,6 +53,7 @@ public:
 
 private:
 
+	/* TODO static const or constexpr !!*/
 	bool _slide[6] =
 			{ false, false, true, true, true, false };
 
