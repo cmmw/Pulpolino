@@ -14,14 +14,22 @@ namespace eng
 
 const uint8_t Board::init_board[] =
 		{
-				ROOK | WHITE, KNIGHT | WHITE, BISHOP | WHITE, QUEEN | WHITE, KING | WHITE, BISHOP | WHITE, KNIGHT | WHITE, ROOK | WHITE,
-				PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE,
+//				ROOK | WHITE, KNIGHT | WHITE, BISHOP | WHITE, QUEEN | WHITE, KING | WHITE, BISHOP | WHITE, KNIGHT | WHITE, ROOK | WHITE,
+//				PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE,
+
+				KING | WHITE, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+				EMPTY, ROOK | BLACK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+
 				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
 				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
 				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
 				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-				PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK,
-				ROOK | BLACK, KNIGHT | BLACK, BISHOP | BLACK, QUEEN | BLACK, KING | BLACK, BISHOP | BLACK, KNIGHT | BLACK, ROOK | BLACK
+
+				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+
+//				PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK,
+//				ROOK | BLACK, KNIGHT | BLACK, BISHOP | BLACK, QUEEN | BLACK, KING | BLACK, BISHOP | BLACK, KNIGHT | BLACK, ROOK | BLACK
 		};
 
 Board::Board() :
@@ -109,6 +117,8 @@ bool Board::move(uint8_t from, uint8_t to)
 
 bool Board::_in_check(Color_t c)
 {
+	this->print_board();
+	g_log << "****" << std::endl;
 	for (int i = 0; i < 64; i++)
 	{
 		if (this->get_piece(i) == KING && this->get_color(i) == c)
@@ -124,9 +134,9 @@ bool Board::_is_attacked(Color_t c, uint8_t sq)
 {
 	for (int i = 0; i < 64; i++)
 	{
-		if (this->get_piece(sq) != EMPTY && this->get_color(sq) != c)
+		if (this->get_piece(i) != EMPTY && this->get_color(i) != c)
 		{
-			if (this->get_piece(sq) == PAWN)
+			if (this->get_piece(i) == PAWN)
 			{
 				if (c == WHITE)
 				{

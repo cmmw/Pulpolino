@@ -19,25 +19,48 @@ Logger g_log;
 eng::Engine<eng::Board, eng::MoveGenerator<eng::Board>> engine;
 
 /*
+ * MoveGenerator tester, compare results with:
+ *
  * http://chessprogramming.wikispaces.com/Perft+Results
  */
 
-void test_gen()
+template<class BOARD_T, class MOVGEN_T>
+uint64_t _perft(uint32_t depth, BOARD_T& board, MOVGEN_T& gen)
+{
+	uint64_t nodes = 0;
+
+	if (depth == 0)
+		return 1;
+
+	std::vector<typename BOARD_T::GenMove_t> moves;
+	gen.gen_moves(board, moves);
+	for (auto it = moves.begin(); it != moves.end(); it++)
+	{
+		if (board.move(*it))
+		{
+			nodes += _perft(depth - 1, board, gen);
+			board.take_back();
+		}
+	}
+	return nodes;
+}
+
+void perft(uint32_t depth)
 {
 	eng::Board board;
 	eng::MoveGenerator<eng::Board> gen;
 	std::vector<eng::Board::GenMove_t> moves;
-	gen.gen_moves(board, moves);
-	g_log << "moves calculated: " << moves.size() << std::endl;
+	uint64_t nodes = _perft(depth, board, gen);
+	g_log << "nodes: " << nodes << std::endl;
 }
 
 int main()
 {
-//	test_gen();
+	perft(1);
 
-	std::thread th(uci_input_th);
-	engine.start();
-	th.join();
+//	std::thread th(uci_input_th);
+//	engine.start();
+//	th.join();
 	return 0;
 }
 
