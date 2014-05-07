@@ -117,7 +117,7 @@ bool Board::_in_check(Color_t c)
 				return true;
 		}
 	}
-	return true;
+	return false;
 }
 
 bool Board::_is_attacked(Color_t c, uint8_t sq)
