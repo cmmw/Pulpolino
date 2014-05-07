@@ -55,9 +55,9 @@ public:
 	Board& operator=(const Board&) = delete;
 
 	void print_board();
-	void move(const char* move);
-	void move(const GenMove_t& move);
-	void move(uint8_t from, uint8_t to);
+	bool move(const char* move);
+	bool move(const GenMove_t& move);
+	bool move(uint8_t from, uint8_t to);
 	void reset_board();
 	void clear_history();
 	bool take_back();
@@ -81,7 +81,7 @@ public:
 	{
 		return {from, to};
 	}
-
+	/*color of current player to move in this position*/
 	inline Color_t get_color()
 	{
 		return this->_color;
@@ -90,6 +90,7 @@ public:
 private:
 
 	std::vector<Move_t> _history;
+	/*Color to move in the current position*/
 	Color_t _color;
 
 	square_t _board[64] =
@@ -99,6 +100,11 @@ private:
 			{ 'P', 'N', 'B', 'R', 'Q', 'K', 'p', 'n', 'b', 'r', 'q', 'k' };
 
 	const static square_t init_board[];
+
+	/*check if color c is checked in current position*/
+	bool _in_check(Color_t c);
+	/*check if color c's square sq is attacked*/
+	bool _is_attacked(Color_t c, uint8_t sq);
 };
 
 } /* namespace eng */

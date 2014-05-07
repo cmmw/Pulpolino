@@ -24,7 +24,8 @@ const uint8_t Board::init_board[] =
 				ROOK | BLACK, KNIGHT | BLACK, BISHOP | BLACK, QUEEN | BLACK, KING | BLACK, BISHOP | BLACK, KNIGHT | BLACK, ROOK | BLACK
 		};
 
-Board::Board() : _color(WHITE)
+Board::Board() :
+		_color(WHITE)
 {
 	this->reset_board();
 }
@@ -64,10 +65,11 @@ void Board::print_board()
 
 void Board::reset_board()
 {
+	this->_color = WHITE;
 	memcpy(this->_board, Board::init_board, sizeof(this->_board));
 }
 
-void Board::move(const char* move)
+bool Board::move(const char* move)
 {
 	square_t from_row, from_file, to_row, to_file;
 	from_file = move[0] - 'a';
@@ -75,17 +77,17 @@ void Board::move(const char* move)
 	to_file = move[2] - 'a';
 	to_row = move[3] - '1';
 
-	this->move(from_row * 8 + from_file, to_row * 8 + to_file);
+	return this->move(from_row * 8 + from_file, to_row * 8 + to_file);
 }
 
-void Board::move(const GenMove_t& move)
+bool Board::move(const GenMove_t& move)
 {
-	this->move(move.from, move.to);
+	return this->move(move.from, move.to);
 }
 
-void Board::move(uint8_t from, uint8_t to)
+bool Board::move(uint8_t from, uint8_t to)
 {
-	/* TODO finish implementation (e.p., promotion, castle... etc) */
+	/* TODO finish implementation (en passant, promoting, castle... etc) check if move is legal (regarding to checks) */
 	Move_t m;
 	m.capture = this->_board[to];
 	m.from = from;
@@ -93,8 +95,70 @@ void Board::move(uint8_t from, uint8_t to)
 	m.orig = this->_board[m.from];
 	this->_board[m.to] = m.orig | MOVED;
 	this->_board[m.from] = EMPTY;
+
+	if (!this->_in_check(this->get_color()))
+	{
+		this->_board[to] = m.capture;
+		this->_board[from] = m.orig;
+		return false;
+	}
 	this->_history.push_back(m);
 	this->_color = (this->_color == WHITE) ? BLACK : WHITE;
+	return true;
+}
+
+bool Board::_in_check(Color_t c)
+{
+	for (int i = 0; i < 64; i++)
+	{
+		if (this->get_piece(i) == KING && this->get_color(i) == c)
+		{
+			if (this->_is_attacked(c, i))
+				return true;
+		}
+	}
+	return true;
+}
+
+bool Board::_is_attacked(Color_t c, uint8_t sq)
+{
+	for (int i = 0; i < 64; i++)
+	{
+		if (this->get_piece(sq) != EMPTY && this->get_color(sq) != c)
+		{
+			if (this->get_piece(sq) == PAWN)
+			{
+				if (c == WHITE)
+				{
+					if (i - 9 == sq || i - 7 == sq)
+						return true;
+				}
+				else
+				{
+					if (i + 9 == sq || i + 7 == sq)
+					{
+						return true;
+					}
+				}
+			}
+			else
+			{
+				Piece_t piece = this->get_piece(i);
+				for (int j = 0; j < BoardBase::_offsets[piece]; j++)
+				{
+					for (int n = i;;)
+					{
+						n = BoardBase::_mailbox[BoardBase::_mailbox64[n] + BoardBase::_offset[piece][j]];
+						if (n == sq)
+							return true;
+						if (n == -1 || this->get_piece(n) != EMPTY || !BoardBase::_slide[piece])
+							break;
+					}
+				}
+			}
+		}
+	}
+	return false;
 }
 
 void Board::clear_history()

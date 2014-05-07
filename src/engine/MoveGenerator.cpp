@@ -28,21 +28,21 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOAR
 	{
 		color = board.get_color(i);
 		piece = board.get_piece(i);
-		if (color == c1 && piece != BOARD_T::EMPTY)
+		if (color == c1 && piece != BoardBase::EMPTY)
 		{
-			if (piece != BOARD_T::PAWN)
+			if (piece != BoardBase::PAWN)
 			{
 
-				for (int j = 0; j < this->_offsets[piece]; j++)
+				for (int j = 0; j < BoardBase::_offsets[piece]; j++)
 				{
-					for (int8_t n = i;;)
+					for (int n = i;;)
 					{
-						n = this->_mailbox[this->_mailbox64[n] + this->_offset[piece][j]];
+						n = BoardBase::_mailbox[BoardBase::_mailbox64[n] + BoardBase::_offset[piece][j]];
 
 						if (n == -1)
 							break;
 
-						if (board.get_piece(n) != BOARD_T::EMPTY)
+						if (board.get_piece(n) != BoardBase::EMPTY)
 						{
 							if (board.get_color(n) == c2)
 							{
@@ -52,7 +52,7 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOAR
 						}
 						moves.push_back(board.gen_mov(i, n));
 
-						if (!_slide[piece])
+						if (!BoardBase::_slide[piece])
 						{
 							break;
 						}
@@ -63,17 +63,17 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOAR
 			{
 				int32_t step;
 				step = (c1 == BOARD_T::WHITE) ? 1 : -1;
-				if (board.get_piece(i + step * 8) == BOARD_T::EMPTY)
+				if (board.get_piece(i + step * 8) == BoardBase::EMPTY)
 				{
 					moves.push_back(board.gen_mov(i, i + step * 8));
-					if (!board.has_moved(i) && board.get_piece(i + 2 * step * 8) == BOARD_T::EMPTY)
+					if (!board.has_moved(i) && board.get_piece(i + 2 * step * 8) == BoardBase::EMPTY)
 					{
 						moves.push_back(board.gen_mov(i, i + 2 * step));
 					}
 				}
 
 				/*pawn capture*/
-				if (board.get_piece(i + step + step * 8) != BOARD_T::EMPTY)
+				if (board.get_piece(i + step + step * 8) != BoardBase::EMPTY)
 				{
 					if (board.get_color(i + step + step * 8) == c2)
 					{
@@ -81,7 +81,7 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOAR
 					}
 				}
 
-				if (board.get_piece(i - step + step * 8) != BOARD_T::EMPTY)
+				if (board.get_piece(i - step + step * 8) != BoardBase::EMPTY)
 				{
 					if (board.get_color(i - step + step * 8) == c2)
 					{
