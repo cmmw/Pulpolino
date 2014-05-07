@@ -63,29 +63,33 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOAR
 			{
 				int32_t step;
 				step = (c1 == BOARD_T::WHITE) ? 1 : -1;
-				if (board.get_piece(i + step * 8) == BoardBase::EMPTY)
+				if (board.get_piece(i + (step * 8)) == BoardBase::EMPTY)
 				{
-					moves.push_back(board.gen_mov(i, i + step * 8));
-					if (!board.has_moved(i) && board.get_piece(i + 2 * step * 8) == BoardBase::EMPTY)
+					moves.push_back(board.gen_mov(i, i + (step * 8)));
+					if (!board.has_moved(i) && board.get_piece(i + (2 * step * 8)) == BoardBase::EMPTY)
 					{
-						moves.push_back(board.gen_mov(i, i + 2 * step));
+						moves.push_back(board.gen_mov(i, i + (2 * step * 8)));
 					}
 				}
 
 				/*pawn capture*/
-				if (board.get_piece(i + step + step * 8) != BoardBase::EMPTY)
+				int32_t n;
+
+				n = BoardBase::_mailbox[BoardBase::_mailbox64[i] + step + (step * 10)];		//10 = offset in mailbox for pawns
+				if (n != -1 && board.get_piece(n) != BoardBase::EMPTY)
 				{
-					if (board.get_color(i + step + step * 8) == c2)
+					if (board.get_color(n) == c2)
 					{
-						moves.push_back(board.gen_mov(i, i + step + step * 8));
+						moves.push_back(board.gen_mov(i, n));
 					}
 				}
 
-				if (board.get_piece(i - step + step * 8) != BoardBase::EMPTY)
+				n = BoardBase::_mailbox[BoardBase::_mailbox64[i] - step + (step * 10)];
+				if (n != -1 && board.get_piece(n) != BoardBase::EMPTY)
 				{
-					if (board.get_color(i - step + step * 8) == c2)
+					if (board.get_color(n) == c2)
 					{
-						moves.push_back(board.gen_mov(i, i - step + step * 8));
+						moves.push_back(board.gen_mov(i, n));
 					}
 				}
 

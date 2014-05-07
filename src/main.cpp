@@ -24,6 +24,7 @@ eng::Engine<eng::Board, eng::MoveGenerator<eng::Board>> engine;
  * http://chessprogramming.wikispaces.com/Perft+Results
  */
 
+
 template<class BOARD_T, class MOVGEN_T>
 uint64_t _perft(uint32_t depth, BOARD_T& board, MOVGEN_T& gen)
 {
@@ -34,6 +35,7 @@ uint64_t _perft(uint32_t depth, BOARD_T& board, MOVGEN_T& gen)
 
 	std::vector<typename BOARD_T::GenMove_t> moves;
 	gen.gen_moves(board, moves);
+
 	for (auto it = moves.begin(); it != moves.end(); it++)
 	{
 		if (board.move(*it))
@@ -56,7 +58,7 @@ void perft(uint32_t depth)
 
 int main()
 {
-	perft(1);
+	perft(4);
 
 //	std::thread th(uci_input_th);
 //	engine.start();
