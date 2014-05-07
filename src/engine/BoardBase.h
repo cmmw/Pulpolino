@@ -25,7 +25,6 @@ public:
 
 	/*Move offsets can be used by the board and/or move generator implementations*/
 
-	/*TODO constexpr?*/
 	static int8_t _offsets[6];
 
 	static int8_t _offset[6][8];

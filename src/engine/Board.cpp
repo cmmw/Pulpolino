@@ -87,7 +87,7 @@ bool Board::move(const GenMove_t& move)
 
 bool Board::move(uint8_t from, uint8_t to)
 {
-	/* TODO finish implementation (en passant, promoting, castle... etc) check if move is legal (regarding to checks) */
+	/* TODO finish implementation (en passant, promoting, castle... etc)*/
 	Move_t m;
 	m.capture = this->_board[to];
 	m.from = from;
@@ -96,7 +96,7 @@ bool Board::move(uint8_t from, uint8_t to)
 	this->_board[m.to] = m.orig | MOVED;
 	this->_board[m.from] = EMPTY;
 
-	if (!this->_in_check(this->get_color()))
+	if (this->_in_check(this->get_color()))
 	{
 		this->_board[to] = m.capture;
 		this->_board[from] = m.orig;
