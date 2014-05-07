@@ -15,7 +15,7 @@ template<class BOARD_T>
 class Evaluator
 {
 public:
-	Evaluator();
+	Evaluator() = default;
 	~Evaluator() = default;
 
 	Evaluator(const Evaluator&) = delete;
@@ -23,6 +23,11 @@ public:
 	Evaluator& operator=(const Evaluator&) = delete;
 
 	int32_t operator()(BOARD_T& board);
+
+
+private:
+	static int sq_values[64];
+	static int pc_values[6];
 };
 
 } /* namespace eng */

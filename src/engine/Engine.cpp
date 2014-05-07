@@ -17,7 +17,7 @@ namespace eng
 
 template<class BOARD_T, class MOVGEN_T, class EVAL_T>
 Engine<BOARD_T, MOVGEN_T, EVAL_T>::Engine() :
-		_stop(false), _quit(false), _depth(1)
+		_stop(false), _quit(false), _depth(4)
 {
 	this->_go.lock();
 }
@@ -59,33 +59,37 @@ void Engine<BOARD_T, MOVGEN_T, EVAL_T>::_run()
 		{
 			break;
 		}
-		this->_think();
+		int32_t val;
+		val = this->_think();
+		g_log << "info string bestmove: " << BOARD_T::mov_to_str(this->_bestmove) << std::endl;
+		g_log << "info string value: " << val << std::endl;
 	}
 }
 
 template<class BOARD_T, class MOVGEN_T, class EVAL_T>
-void Engine<BOARD_T, MOVGEN_T, EVAL_T>::_think()
+int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_think()
 {
+	int32_t val;
 	this->_stop.store(false);
-	/* TODO call search in a iterative deepening manner (mabye?)*/
-	this->_aicolor = this->_board.get_color();
-	this->_search(this->_depth);
+	/* TODO call search in a iterative deepening manner (?)*/
+	val = this->_search(this->_depth);
+	this->_board.move(this->_bestmove);
 	g_log << "bestmove " << BOARD_T::mov_to_str(this->_bestmove) << std::endl;
-	g_log << "info bestmove " << BOARD_T::mov_to_str(this->_bestmove) << std::endl;
 	this->_stop.store(false);
+	return val;
 }
 
-/*minimax in negamax fashion*/
+/*negamax*/
 template<class BOARD_T, class MOVGEN_T, class EVAL_T>
 int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_search(uint32_t depth)
 {
 	/*TODO finish negamax search*/
-	int32_t val;
 	int32_t max = -99999999;
+	int32_t val = max;
 
 	if (depth == 0 || this->_stop.load())
 	{
-		if (this->_board.get_color() == this->_aicolor)
+		if(this->_board.get_color() == BOARD_T::WHITE)
 			return eval(this->_board);
 		return -eval(this->_board);
 	}
@@ -101,7 +105,10 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_search(uint32_t depth)
 			if (val > max)
 			{
 				max = val;
-				this->_bestmove = *it;		//only needed on the highest recursion level, before exiting the function
+				if(depth == this->_depth)
+				{
+					this->_bestmove = *it;		//only needed on the highest recursion level, before exiting the function
+				}
 			}
 		}
 	}
@@ -134,6 +141,12 @@ void Engine<BOARD_T, MOVGEN_T, EVAL_T>::position(const std::string& pos)
 			break;
 		}
 	}
+}
+
+template<class BOARD_T, class MOVGEN_T, class EVAL_T>
+void Engine<BOARD_T, MOVGEN_T, EVAL_T>::print_board()
+{
+	this->_board.print_board();
 }
 
 } /* namespace eng */

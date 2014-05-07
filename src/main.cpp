@@ -125,9 +125,13 @@ void uci_input_th()
 			quit = true;
 			engine.quit();
 		}
+		else if(!cmd.compare("print"))
+		{
+			engine.print_board();
+		}
 		else
 		{
-			g_log << "info unknown cmd" << std::endl;
+			g_log << "info string unknown cmd" << std::endl;
 		}
 
 	}

@@ -41,6 +41,8 @@ public:
 	/*call when uci command position is received, will set position on the board, argument = received string from gui (including "position")*/
 	void position(const std::string& pos);
 
+	void print_board();
+
 private:
 	std::mutex _go;
 	std::atomic<bool> _stop;
@@ -52,15 +54,14 @@ private:
 	EVAL_T eval;
 
 	void _run();
-	void _think();
+	int32_t _think();
 	int32_t _search(uint32_t depth);
-	typename BOARD_T::Color_t _aicolor;
+
 	typename BOARD_T::GenMove_t _bestmove;
 
 };
 
 } /* namespace eng */
-
 
 #include "Engine.cpp"
 
