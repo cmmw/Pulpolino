@@ -49,8 +49,11 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="cdt.managedbuild.config.gnu.mingw.exe.debug.216682485.1628701343" name="Evaluator.cpp" rcbsApplicability="disable" resourcePath="src/engine/Evaluator.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.exe.debug.1805670083.1163068472">
+						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.exe.debug.1805670083.1163068472" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.exe.debug.1805670083"/>
+					</fileInfo>
 					<sourceEntries>
-						<entry excluding="engine/Engine.cpp|engine/MoveGenerator.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="engine/Evaluator.cpp|engine/Engine.cpp|engine/MoveGenerator.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -96,6 +99,9 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="cdt.managedbuild.config.gnu.mingw.exe.release.106731087.1239715429" name="Evaluator.cpp" rcbsApplicability="disable" resourcePath="src/engine/Evaluator.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.exe.release.1084181542.502099692">
+						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.exe.release.1084181542.502099692" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.exe.release.1084181542"/>
+					</fileInfo>
 					<sourceEntries>
 						<entry excluding="engine/MoveGenerator.cpp|engine/Engine.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>

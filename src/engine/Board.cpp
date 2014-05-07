@@ -114,7 +114,7 @@ bool Board::move(uint8_t from, uint8_t to)
 //		g_log << "capture " << " " << capt << std::endl;
 //	}
 
-	if (this->_in_check(this->_color))
+	if (this->in_check(this->_color))
 	{
 		this->_board[to] = m.capture;
 		this->_board[from] = m.orig;
@@ -133,20 +133,20 @@ bool Board::move(uint8_t from, uint8_t to)
 	return true;
 }
 
-bool Board::_in_check(Color_t c)
+bool Board::in_check(Color_t c)
 {
 	for (int i = 0; i < 64; i++)
 	{
 		if (this->get_piece(i) == KING && this->get_color(i) == c)
 		{
-			if (this->_is_attacked(c, i))
+			if (this->is_attacked(c, i))
 				return true;
 		}
 	}
 	return false;
 }
 
-bool Board::_is_attacked(Color_t c, uint8_t sq)
+bool Board::is_attacked(Color_t c, uint8_t sq)
 {
 	for (int i = 0; i < 64; i++)
 	{
@@ -203,6 +203,23 @@ bool Board::take_back()
 	this->_board[m.to] = m.capture;
 	this->_color = (this->_color == WHITE) ? BLACK : WHITE;
 	return true;
+}
+
+std::string Board::mov_to_str(const GenMove_t& mov)
+{
+	static char _letter[8] =
+			{ 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h' };
+	static char _digit[8] =
+			{ '1', '2', '3', '4', '5', '6', '7', '8' };
+
+	char from_f = _letter[(mov.from % 8)];
+	char from_r = _digit[(mov.from / 8)];
+	char to_f = _letter[(mov.to % 8)];
+	char to_r = _digit[(mov.to / 8)];
+
+	return
+	{	from_f, from_r, to_f, to_r};
+
 }
 
 } /* namespace eng */

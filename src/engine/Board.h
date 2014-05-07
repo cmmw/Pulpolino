@@ -79,13 +79,27 @@ public:
 
 	inline GenMove_t gen_mov(uint8_t from, uint8_t to)
 	{
-		return {from, to};
+		return
+		{	from, to};
 	}
 	/*color of current player to move in this position*/
 	inline Color_t get_color()
 	{
 		return this->_color;
 	}
+
+	/*return piece at idx*/
+	inline square_t operator[](uint32_t idx)
+	{
+		return this->_board[idx];
+	}
+
+	/*check if color c is checked in current position*/
+	bool in_check(Color_t c);
+	/*check if color c's square sq is attacked*/
+	bool is_attacked(Color_t c, uint8_t sq);
+
+	static std::string mov_to_str(const GenMove_t& mov);
 
 private:
 
@@ -101,10 +115,6 @@ private:
 
 	const static square_t init_board[];
 
-	/*check if color c is checked in current position*/
-	bool _in_check(Color_t c);
-	/*check if color c's square sq is attacked*/
-	bool _is_attacked(Color_t c, uint8_t sq);
 };
 
 } /* namespace eng */

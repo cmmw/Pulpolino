@@ -10,13 +10,13 @@
 
 #include <mutex>
 #include <atomic>
-#include "Board.h"
+
 #include "MoveGenerator.h"
 
 namespace eng
 {
 
-template<class BOARD_T, class MOVGEN_T>
+template<class BOARD_T, class MOVGEN_T, class EVAL_T>
 class Engine
 {
 public:
@@ -49,6 +49,7 @@ private:
 
 	BOARD_T _board;
 	MOVGEN_T _movegen;
+	EVAL_T eval;
 
 	void _run();
 	void _think();

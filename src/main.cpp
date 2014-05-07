@@ -12,18 +12,20 @@
 #include <iterator>
 #include <sstream>
 
+#include "engine/Board.h"
+#include "engine/Evaluator.h"
+
 #include "main.h"
 #include "Globals.h"
 
 Logger g_log;
-eng::Engine<eng::Board, eng::MoveGenerator<eng::Board>> engine;
+eng::Engine<eng::Board, eng::MoveGenerator<eng::Board>, eng::Evaluator<eng::Board>> engine;
 
 /*
  * MoveGenerator tester, compare results with:
  *
  * http://chessprogramming.wikispaces.com/Perft+Results
  */
-
 
 template<class BOARD_T, class MOVGEN_T>
 uint64_t _perft(uint32_t depth, BOARD_T& board, MOVGEN_T& gen)
@@ -58,11 +60,10 @@ void perft(uint32_t depth)
 
 int main()
 {
-	perft(4);
-
-//	std::thread th(uci_input_th);
-//	engine.start();
-//	th.join();
+	//perft(5);
+	std::thread th(uci_input_th);
+	engine.start();
+	th.join();
 	return 0;
 }
 
@@ -79,7 +80,7 @@ void uci_input_th()
 
 		if (!cmd.compare("uci"))
 		{
-			g_log << "id name ChessEngine" << std::endl;
+			g_log << "id name Pulpolino" << std::endl;
 			g_log << "id author Christian Wagner" << std::endl;
 			g_log << "uciok" << std::endl;
 		}
@@ -107,7 +108,7 @@ void uci_input_th()
 		{
 			engine.position(cmd);
 		}
-		else if (!cmd.compare("go"))
+		else if (!cmd.compare(0, 2, "go"))
 		{
 			engine.go();
 		}
