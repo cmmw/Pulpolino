@@ -117,8 +117,6 @@ bool Board::move(uint8_t from, uint8_t to)
 
 bool Board::_in_check(Color_t c)
 {
-	this->print_board();
-	g_log << "****" << std::endl;
 	for (int i = 0; i < 64; i++)
 	{
 		if (this->get_piece(i) == KING && this->get_color(i) == c)
