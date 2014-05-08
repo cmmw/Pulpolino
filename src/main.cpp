@@ -42,6 +42,7 @@ uint64_t _perft(uint32_t depth, BOARD_T& board, MOVGEN_T& gen)
 	{
 		if (board.move(*it))
 		{
+			board.print_board();
 			nodes += _perft(depth - 1, board, gen);
 			board.take_back();
 		}
@@ -54,16 +55,17 @@ void perft(uint32_t depth)
 	eng::Board board;
 	eng::MoveGenerator<eng::Board> gen;
 	std::vector<eng::Board::GenMove_t> moves;
+	board.print_board();
 	uint64_t nodes = _perft(depth, board, gen);
 	g_log << "nodes: " << nodes << std::endl;
 }
 
 int main()
 {
-	//perft(5);
-	std::thread th(uci_input_th);
-	engine.start();
-	th.join();
+	perft(1);
+//	std::thread th(uci_input_th);
+//	engine.start();
+//	th.join();
 	return 0;
 }
 

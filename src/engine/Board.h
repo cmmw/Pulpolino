@@ -43,7 +43,7 @@ public:
 
 	enum Mask_t
 	{
-		COLOR = 1 << 7, CASTLE = 1 << 4, MOVED = 1 << 3, PIECE = 7
+		COLOR = 1 << 7, EP = 1 << 5, CASTLE = 1 << 4, MOVED = 1 << 3, PIECE = 7
 	};
 
 	Board();

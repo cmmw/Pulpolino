@@ -17,7 +17,6 @@ template<class BOARD_T>
 void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOARD_T::GenMove_t>& moves)
 {
 	typename BOARD_T::Piece_t piece;
-	typename BOARD_T::Color_t color;
 	typename BOARD_T::Color_t c1;
 	typename BOARD_T::Color_t c2;
 
@@ -26,9 +25,8 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOAR
 
 	for (int i = 0; i < 64; i++)
 	{
-		color = board.get_color(i);
 		piece = board.get_piece(i);
-		if (color == c1 && piece != BoardBase::EMPTY)
+		if (board.get_color(i) == c1 && piece != BoardBase::EMPTY)
 		{
 			if (piece != BoardBase::PAWN)
 			{
@@ -61,12 +59,15 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOAR
 			}
 			else /*PAWN*/
 			{
-				int32_t step;
+				/*Single and double push*/
+				int32_t file, row, step;
+				file = i % 8;
+				row = i / 8;
 				step = (c1 == BOARD_T::WHITE) ? 1 : -1;
 				if (board.get_piece(i + (step * 8)) == BoardBase::EMPTY)
 				{
 					moves.push_back(board.gen_mov(i, i + (step * 8)));
-					if (!board.has_moved(i) && board.get_piece(i + (2 * step * 8)) == BoardBase::EMPTY)
+					if (((c1 == BOARD_T::WHITE && row == 1) || (c1 == BOARD_T::BLACK && row == 6)) && board.get_piece(i + (2 * step * 8)) == BoardBase::EMPTY)
 					{
 						moves.push_back(board.gen_mov(i, i + (2 * step * 8)));
 					}
@@ -93,7 +94,53 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOAR
 					}
 				}
 
-				/* TODO missing moves: en passant, promoting, castle */
+				/*en passant*/
+				if (c1 == BOARD_T::WHITE && row == 4)
+				{
+					if (file != 0)
+					{
+						typename BOARD_T::Piece_t p = board.get_piece(i - 1);
+						typename BOARD_T::Color_t c = board.get_color(i - 1);
+						if (p != BoardBase::EMPTY && c == c2)
+						{
+							moves.push_back(board.gen_mov(i, i + 7));
+						}
+					}
+					if (file != 7)
+					{
+						typename BOARD_T::Piece_t p = board.get_piece(i + 1);
+						typename BOARD_T::Color_t c = board.get_color(i + 1);
+						if (p != BoardBase::EMPTY && c == c2)
+						{
+							moves.push_back(board.gen_mov(i, i + 9));
+						}
+					}
+
+				}
+				else if (c1 == BOARD_T::BLACK && row == 3)
+				{
+					if (file != 0)
+					{
+						typename BOARD_T::Piece_t p = board.get_piece(i - 1);
+						typename BOARD_T::Color_t c = board.get_color(i - 1);
+						if (p != BoardBase::EMPTY && c == c2)
+						{
+							moves.push_back(board.gen_mov(i, i - 9));
+						}
+					}
+					if (file != 7)
+					{
+						typename BOARD_T::Piece_t p = board.get_piece(i + 1);
+						typename BOARD_T::Color_t c = board.get_color(i + 1);
+						if (p != BoardBase::EMPTY && c == c2)
+						{
+							moves.push_back(board.gen_mov(i, i - 7));
+						}
+					}
+
+				}
+
+				/* TODO missing moves: promoting, castle */
 
 			}
 		}

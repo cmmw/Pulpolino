@@ -14,25 +14,26 @@ namespace eng
 
 const uint8_t Board::init_board[] =
 		{
-				ROOK | WHITE, KNIGHT | WHITE, BISHOP | WHITE, QUEEN | WHITE, KING | WHITE, BISHOP | WHITE, KNIGHT | WHITE, ROOK | WHITE,
-				PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE,
-				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-				PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK,
-				ROOK | BLACK, KNIGHT | BLACK, BISHOP | BLACK, QUEEN | BLACK, KING | BLACK, BISHOP | BLACK, KNIGHT | BLACK, ROOK | BLACK
 
-//				WHITE | KING, ROOK | BLACK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-//				EMPTY, ROOK | BLACK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-//
-//				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-//				WHITE | PAWN, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-//				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-//				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, BLACK | PAWN,
-//
+//				ROOK | WHITE, KNIGHT | WHITE, BISHOP | WHITE, QUEEN | WHITE, KING | WHITE, BISHOP | WHITE, KNIGHT | WHITE, ROOK | WHITE,
+//				PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE,
 //				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
 //				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+//				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+//				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+//				PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK,
+//				ROOK | BLACK, KNIGHT | BLACK, BISHOP | BLACK, QUEEN | BLACK, KING | BLACK, BISHOP | BLACK, KNIGHT | BLACK, ROOK | BLACK
+
+				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+
+				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+				EMPTY, BLACK | PAWN, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+				WHITE | PAWN, BLACK | PAWN, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+
+				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
 		};
 
 Board::Board() :
@@ -53,6 +54,8 @@ void Board::print_board()
 	uint8_t color;
 	for (int i = 7; i >= 0; i--)
 	{
+		g_log << std::endl << "-----------------" << std::endl;
+		g_log << "|";
 		for (int j = 0; j < 8; j++)
 		{
 			piece = this->_board[j + i * 8];
@@ -69,9 +72,11 @@ void Board::print_board()
 				g_log << this->_piece_code[(piece & PIECE) + (color * 6)];
 				break;
 			}
+			g_log << "|";
 		}
-		g_log << std::endl;
+
 	}
+	g_log << std::endl << "-----------------" << std::endl;
 }
 
 void Board::reset_board()
@@ -98,38 +103,72 @@ bool Board::move(const GenMove_t& move)
 
 bool Board::move(uint8_t from, uint8_t to)
 {
-	/* TODO finish implementation (en passant, promoting, castle... etc) there are still some invalid moves...*/
+	/* TODO finish implementation (check for legal castle move. Promoting... etc) there are still some invalid moves...*/
 	Move_t m;
-	m.capture = this->_board[to];
 	m.from = from;
 	m.to = to;
-	m.orig = this->_board[m.from];
-	this->_board[m.to] = m.orig | MOVED;
-	this->_board[m.from] = EMPTY;
 
-//	static int capt = 0;
-//	if (m.capture != EMPTY)
-//	{
-//		capt++;
-//		g_log << "capture " << " " << capt << std::endl;
-//	}
+	/*en passant*/
+	int32_t d = from - to;
+	if (d < 0)
+		d = to - from;
+	if ((from & PIECE) == PAWN && (d == 7 || d == 9))
+	{
+		m.orig = this->_board[from];
+		this->_board[to] = this->_board[from];
+		this->_board[from] = EMPTY;
 
+		if ((from & COLOR) == WHITE)
+			d = d - 8;
+		else
+			d = 8 - d;
+
+		if (!this->_history.empty())
+		{
+			const Move_t& top = this->_history.top();
+			if (top.from != from || top.to != to)
+			{
+				return false;
+			}
+		}
+		else
+		{
+			/*We do not allow EP if there is no history (generated position with fen string)*/
+			return false;
+		}
+
+		m.capture = this->_board[from + d] | EP;
+		this->_board[from + d] = EMPTY;
+
+		/*move is not allowed if we are in check after it*/
+		if (this->in_check(this->_color))
+		{
+			this->_board[from + d] = m.capture & (EP ^ 1);
+			this->_board[from] = m.orig;
+			this->_board[to] = EMPTY;
+			return false;
+		}
+		this->_history.push(m);
+		this->_color = (this->_color == WHITE) ? BLACK : WHITE;
+		return true;
+	}
+
+	m.capture = this->_board[to];
+	m.orig = this->_board[from];
+	/*make move*/
+	this->_board[to] = m.orig | MOVED;
+	this->_board[from] = EMPTY;
+
+	/*move is not allowed if we are in check after it*/
 	if (this->in_check(this->_color))
 	{
 		this->_board[to] = m.capture;
 		this->_board[from] = m.orig;
 		return false;
 	}
+
 	this->_history.push(m);
 	this->_color = (this->_color == WHITE) ? BLACK : WHITE;
-
-//	static int checks = 0;
-//	if (this->_in_check(this->_color))
-//	{
-//		checks++;
-//		g_log << "checks: " << checks << std::endl;
-//	}
-
 	return true;
 }
 
