@@ -6,6 +6,7 @@
  */
 
 #include <iostream>
+#include <cstring>
 #include "Board.h"
 #include "../Globals.h"
 
@@ -29,10 +30,10 @@ const uint8_t Board::init_board[] =
 
 				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
 				EMPTY, BLACK | PAWN, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-				WHITE | PAWN, BLACK | PAWN, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+				EMPTY, BLACK | PAWN, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
 				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
 
-				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+				WHITE | PAWN, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
 				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
 		};
 
@@ -88,20 +89,40 @@ void Board::reset_board()
 bool Board::move(const char* move)
 {
 	square_t from_row, from_file, to_row, to_file;
+	Piece_t p = EMPTY;
 	from_file = move[0] - 'a';
 	from_row = move[1] - '1';
 	to_file = move[2] - 'a';
 	to_row = move[3] - '1';
-
-	return this->move(from_row * 8 + from_file, to_row * 8 + to_file);
+	if (strlen(move) == 5)
+	{
+		switch (move[4])
+		{
+		case 'q':
+			p = QUEEN;
+			break;
+		case 'n':
+			p = KNIGHT;
+			break;
+		case 'b':
+			p = BISHOP;
+			break;
+		case 'r':
+			p = ROOK;
+			break;
+		default:
+			g_log << "info string [FATAL] Promoting to unknown piece: " << move[4] << std::endl;
+		}
+	}
+	return this->move(from_row * 8 + from_file, to_row * 8 + to_file, p);
 }
 
 bool Board::move(const GenMove_t& move)
 {
-	return this->move(move.from, move.to);
+	return this->move(move.from, move.to, move.promote);
 }
 
-bool Board::move(uint8_t from, uint8_t to)
+bool Board::move(uint8_t from, uint8_t to, Piece_t promotoe)
 {
 	/* TODO finish implementation (check for legal castle move. Promoting... etc) there are still some invalid moves...*/
 	Move_t m;
@@ -155,9 +176,32 @@ bool Board::move(uint8_t from, uint8_t to)
 
 	m.capture = this->_board[to];
 	m.orig = this->_board[from];
-	/*make move*/
-	this->_board[to] = m.orig | MOVED;
-	this->_board[from] = EMPTY;
+
+	/*Promoting*/
+	int8_t row_fr, row_to;
+	row_fr = from / 8;
+	row_to = to / 8;
+	if (this->_color == WHITE && row_fr == 6 && row_to == 7 && promotoe == EMPTY)
+	{
+		return false;
+	}
+
+	if (this->_color == BLACK && row_fr == 1 && row_to == 0 && promotoe == EMPTY)
+	{
+		return false;
+	}
+
+	if (promotoe != EMPTY)
+	{
+		this->_board[from] = EMPTY;
+		this->_board[to] = promotoe;
+	}
+	else
+	{
+		/*make normal or capture move*/
+		this->_board[to] = m.orig | MOVED;
+		this->_board[from] = EMPTY;
+	}
 
 	/*move is not allowed if we are in check after it*/
 	if (this->in_check(this->_color))

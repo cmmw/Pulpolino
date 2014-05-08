@@ -34,6 +34,7 @@ public:
 	{
 		uint8_t from;
 		uint8_t to;
+		Piece_t promote;
 	};
 
 	enum Color_t
@@ -57,7 +58,7 @@ public:
 	void print_board();
 	bool move(const char* move);
 	bool move(const GenMove_t& move);
-	bool move(uint8_t from, uint8_t to);
+	bool move(uint8_t from, uint8_t to, Piece_t promote = EMPTY);
 	void reset_board();
 	void clear_history();
 	bool take_back();
@@ -77,10 +78,10 @@ public:
 		return static_cast<bool>(this->_board[idx] & MOVED) && ((this->_board[idx] & PIECE) != EMPTY);
 	}
 
-	inline GenMove_t gen_mov(uint8_t from, uint8_t to)
+	inline GenMove_t gen_mov(uint8_t from, uint8_t to, Piece_t p = EMPTY)
 	{
 		return
-		{	from, to};
+		{	from, to, p};
 	}
 	/*color of current player to move in this position*/
 	inline Color_t get_color()
