@@ -63,6 +63,6 @@ private:
 
 } /* namespace eng */
 
-#include "Engine.cpp"
+#include "impl/EngineImpl.h"
 
 #endif /* ENGINE_H_ */

@@ -32,6 +32,6 @@ private:
 
 } /* namespace eng */
 
-#include "Evaluator.cpp"
+#include "impl/EvaluatorImpl.h"
 
 #endif /* EVALUATOR_H_ */

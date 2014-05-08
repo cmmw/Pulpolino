@@ -9,8 +9,8 @@
 #include <iterator>
 #include <sstream>
 #include <vector>
-#include "Engine.h"
-#include "../Globals.h"
+#include "../Engine.h"
+#include "../../Globals.h"
 
 namespace eng
 {

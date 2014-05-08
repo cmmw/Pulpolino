@@ -55,6 +55,6 @@ public:
 
 } /* namespace eng */
 
-#include "MoveGenerator.cpp"
+#include "impl/MoveGeneratorImpl.h"
 
 #endif /* MOVEGENERATOR_H_ */

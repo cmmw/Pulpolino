@@ -16,7 +16,12 @@
 					<folderInfo id="cdt.managedbuild.config.gnu.mingw.exe.debug.216682485." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.mingw.exe.debug.490758067" name="MinGW GCC" superClass="cdt.managedbuild.toolchain.gnu.mingw.exe.debug">
 							<targetPlatform id="cdt.managedbuild.target.gnu.platform.mingw.exe.debug.1892398047" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.mingw.exe.debug"/>
-							<builder buildPath="${workspace_loc:/ChessEngine}/Debug" id="cdt.managedbuild.tool.gnu.builder.mingw.base.1409579783" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="CDT Internal Builder" superClass="cdt.managedbuild.tool.gnu.builder.mingw.base"/>
+							<builder buildPath="${workspace_loc:/ChessEngine}/Debug" id="cdt.managedbuild.tool.gnu.builder.mingw.base.1409579783" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="CDT Internal Builder" superClass="cdt.managedbuild.tool.gnu.builder.mingw.base">
+								<outputEntries>
+									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="Debug"/>
+									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="Release"/>
+								</outputEntries>
+							</builder>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.mingw.exe.debug.28172684" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.mingw.exe.debug">
 								<option id="gnu.both.asm.option.include.paths.1123824629" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths"/>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.474103329" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
@@ -49,11 +54,8 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="cdt.managedbuild.config.gnu.mingw.exe.debug.216682485.1628701343" name="Evaluator.cpp" rcbsApplicability="disable" resourcePath="src/engine/Evaluator.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.exe.debug.1805670083.1163068472">
-						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.exe.debug.1805670083.1163068472" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.exe.debug.1805670083"/>
-					</fileInfo>
 					<sourceEntries>
-						<entry excluding="engine/Evaluator.cpp|engine/Engine.cpp|engine/MoveGenerator.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="engine/MoveGenerator.cpp|engine/Evaluator.cpp|engine/Engine.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -99,11 +101,9 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="cdt.managedbuild.config.gnu.mingw.exe.release.106731087.1239715429" name="Evaluator.cpp" rcbsApplicability="disable" resourcePath="src/engine/Evaluator.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.exe.release.1084181542.502099692">
-						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.exe.release.1084181542.502099692" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.exe.release.1084181542"/>
-					</fileInfo>
 					<sourceEntries>
-						<entry excluding="engine/MoveGenerator.cpp|engine/Engine.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="engine/impl|engine/MoveGenerator.cpp|engine/Engine.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src/engine/impl"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

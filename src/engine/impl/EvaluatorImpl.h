@@ -5,9 +5,9 @@
  *      Author: Christian
  */
 
-#include "Evaluator.h"
-#include "BoardBase.h"
-#include "../Globals.h"
+#include "../Evaluator.h"
+#include "../BoardBase.h"
+#include "../../Globals.h"
 
 namespace eng
 {

@@ -5,10 +5,10 @@
  *      Author: Christian
  */
 
-#include "MoveGenerator.h"
-#include "../Globals.h"
-#include "BoardBase.h"
-#include "Board.h"
+#include "../MoveGenerator.h"
+#include "../../Globals.h"
+#include "../BoardBase.h"
+#include "../Board.h"
 
 namespace eng
 {
