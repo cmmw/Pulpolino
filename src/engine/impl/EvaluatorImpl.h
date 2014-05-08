@@ -92,7 +92,6 @@ int32_t Evaluator<BOARD_T>::operator()(BOARD_T& board)
 		}
 
 	}
-	g_log << val << std::endl;
 	return val;
 }
 

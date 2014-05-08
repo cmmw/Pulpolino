@@ -120,7 +120,7 @@ bool Board::move(uint8_t from, uint8_t to)
 		this->_board[from] = m.orig;
 		return false;
 	}
-	this->_history.push_back(m);
+	this->_history.push(m);
 	this->_color = (this->_color == WHITE) ? BLACK : WHITE;
 
 //	static int checks = 0;
@@ -189,7 +189,7 @@ bool Board::is_attacked(Color_t c, uint8_t sq)
 
 void Board::clear_history()
 {
-	this->_history.clear();
+	this->_history = std::stack<Move_t>();
 }
 
 bool Board::take_back()
@@ -197,8 +197,8 @@ bool Board::take_back()
 	if (this->_history.empty())
 		return false;
 
-	Move_t m = this->_history.back();
-	this->_history.pop_back();
+	Move_t m = this->_history.top();
+	this->_history.pop();
 	this->_board[m.from] = m.orig;
 	this->_board[m.to] = m.capture;
 	this->_color = (this->_color == WHITE) ? BLACK : WHITE;

@@ -9,7 +9,7 @@
 #define BOARD_H_
 
 #include <cstdint>
-#include <vector>
+#include <stack>
 
 #include "BoardBase.h"
 
@@ -103,7 +103,7 @@ public:
 
 private:
 
-	std::vector<Move_t> _history;
+	std::stack<Move_t> _history;
 	/*Color to move in the current position*/
 	Color_t _color;
 
