@@ -23,7 +23,7 @@ public:
 		PAWN = 0, KNIGHT = 1, BISHOP = 2, ROOK = 3, QUEEN = 4, KING = 5, UNUSED = 6, EMPTY = 7
 	};
 
-	/*Move offsets can be used by the board and/or move generator implementations*/
+	/*Move offsets can be used by the board, evaulation and/or move generator implementations*/
 
 	static int8_t _offsets[6];
 
