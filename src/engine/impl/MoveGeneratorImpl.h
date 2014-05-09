@@ -23,7 +23,7 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOAR
 	c1 = board.get_color();
 	c2 = (c1 == BOARD_T::WHITE) ? BOARD_T::BLACK : BOARD_T::WHITE;
 
-	/* TODO missing moves: castle */
+	/* TODO missing moves: castle, promoting, en passant */
 	for (int i = 0; i < 64; i++)
 	{
 		piece = board.get_piece(i);
@@ -31,7 +31,6 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOAR
 		{
 			if (piece != BoardBase::PAWN)
 			{
-
 				for (int j = 0; j < BoardBase::_offsets[piece]; j++)
 				{
 					for (int n = i;;)
@@ -61,8 +60,7 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOAR
 			else /*PAWN*/
 			{
 				/*Single and double push*/
-				int32_t file, row, step;
-				file = i % 8;
+				int32_t step, row;
 				row = i / 8;
 				step = (c1 == BOARD_T::WHITE) ? 1 : -1;
 				if (board.get_piece(i + (step * 8)) == BoardBase::EMPTY)
@@ -75,24 +73,13 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOAR
 				}
 
 				/*pawn capture*/
-				int32_t n, nrow;
+				int32_t n;
 				n = BoardBase::_mailbox[BoardBase::_mailbox64[i] + step + (step * 10)];		//10 = offset in mailbox for pawns
-				nrow = n / 8;
 				if (n != -1 && board.get_piece(n) != BoardBase::EMPTY)
 				{
 					if (board.get_color(n) == c2)
 					{
-						if ((nrow == 7 && c1 == BOARD_T::WHITE) || (nrow == 0 && c1 == BOARD_T::BLACK))
-						{
-							for (int j = 1; j < 5; j++)
-							{
-								moves.push_back(board.gen_mov(i, n, static_cast<BoardBase::Piece_t>(j)));
-							}
-						}
-						else
-						{
-							moves.push_back(board.gen_mov(i, n));
-						}
+						moves.push_back(board.gen_mov(i, n));
 					}
 				}
 
@@ -101,80 +88,8 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOAR
 				{
 					if (board.get_color(n) == c2)
 					{
-						if ((nrow == 7 && c1 == BOARD_T::WHITE) || (nrow == 0 && c1 == BOARD_T::BLACK))
-						{
-							for (int j = 1; j < 5; j++)
-							{
-								moves.push_back(board.gen_mov(i, n, static_cast<BoardBase::Piece_t>(j)));
-							}
-						}
-						else
-						{
-							moves.push_back(board.gen_mov(i, n));
-						}
+						moves.push_back(board.gen_mov(i, n));
 					}
-				}
-
-				/*promoting*/
-				if (c1 == BOARD_T::WHITE && row == 6 && board.get_piece(i + 8) == BoardBase::EMPTY)
-				{
-					for (int j = 1; j < 5; j++)
-					{
-						moves.push_back(board.gen_mov(i, i + 8, static_cast<BoardBase::Piece_t>(j)));
-					}
-				}
-				else if (c1 == BOARD_T::BLACK && row == 1 && board.get_piece(i - 8) == BoardBase::EMPTY)
-				{
-					for (int j = 1; j < 5; j++)
-					{
-						moves.push_back(board.gen_mov(i, i - 8, static_cast<BoardBase::Piece_t>(j)));
-					}
-				}
-
-				/*en passant*/
-				if (c1 == BOARD_T::WHITE && row == 4)
-				{
-					if (file != 0)
-					{
-						typename BOARD_T::Piece_t p = board.get_piece(i - 1);
-						typename BOARD_T::Color_t c = board.get_color(i - 1);
-						if (p != BoardBase::EMPTY && c == c2)
-						{
-							moves.push_back(board.gen_mov(i, i + 7));
-						}
-					}
-					if (file != 7)
-					{
-						typename BOARD_T::Piece_t p = board.get_piece(i + 1);
-						typename BOARD_T::Color_t c = board.get_color(i + 1);
-						if (p != BoardBase::EMPTY && c == c2)
-						{
-							moves.push_back(board.gen_mov(i, i + 9));
-						}
-					}
-
-				}
-				else if (c1 == BOARD_T::BLACK && row == 3)
-				{
-					if (file != 0)
-					{
-						typename BOARD_T::Piece_t p = board.get_piece(i - 1);
-						typename BOARD_T::Color_t c = board.get_color(i - 1);
-						if (p != BoardBase::EMPTY && c == c2)
-						{
-							moves.push_back(board.gen_mov(i, i - 9));
-						}
-					}
-					if (file != 7)
-					{
-						typename BOARD_T::Piece_t p = board.get_piece(i + 1);
-						typename BOARD_T::Color_t c = board.get_color(i + 1);
-						if (p != BoardBase::EMPTY && c == c2)
-						{
-							moves.push_back(board.gen_mov(i, i - 7));
-						}
-					}
-
 				}
 			}
 		}

@@ -10,31 +10,34 @@
 #include "Board.h"
 #include "../Globals.h"
 
+#include <set>
+#include <string>
+
 namespace eng
 {
 
 const uint8_t Board::init_board[] =
 		{
 
-//				ROOK | WHITE, KNIGHT | WHITE, BISHOP | WHITE, QUEEN | WHITE, KING | WHITE, BISHOP | WHITE, KNIGHT | WHITE, ROOK | WHITE,
-//				PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE,
-//				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-//				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-//				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-//				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-//				PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK,
-//				ROOK | BLACK, KNIGHT | BLACK, BISHOP | BLACK, QUEEN | BLACK, KING | BLACK, BISHOP | BLACK, KNIGHT | BLACK, ROOK | BLACK
+		ROOK | WHITE, KNIGHT | WHITE, BISHOP | WHITE, QUEEN | WHITE, KING | WHITE, BISHOP | WHITE, KNIGHT | WHITE, ROOK | WHITE,
+				PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE,
+				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+				PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK,
+				ROOK | BLACK, KNIGHT | BLACK, BISHOP | BLACK, QUEEN | BLACK, KING | BLACK, BISHOP | BLACK, KNIGHT | BLACK, ROOK | BLACK
 
-				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-
-				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-				EMPTY, BLACK | PAWN, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-				EMPTY, BLACK | PAWN, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-
-				WHITE | PAWN, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+//				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+//				EMPTY, EMPTY, EMPTY, PAWN | WHITE, EMPTY, EMPTY, EMPTY, EMPTY,
+//
+//				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+//				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+//				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+//				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+//
+//				EMPTY, PAWN | BLACK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+//				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
 		};
 
 Board::Board() :
@@ -122,86 +125,18 @@ bool Board::move(const GenMove_t& move)
 	return this->move(move.from, move.to, move.promote);
 }
 
-bool Board::move(uint8_t from, uint8_t to, Piece_t promotoe)
+bool Board::move(uint8_t from, uint8_t to, Piece_t promote)
 {
 	/* TODO finish implementation (check for legal castle move. Promoting... etc) there are still some invalid moves...*/
 	Move_t m;
 	m.from = from;
 	m.to = to;
-
-	/*en passant*/
-	int32_t d = from - to;
-	if (d < 0)
-		d = to - from;
-	if ((from & PIECE) == PAWN && (d == 7 || d == 9))
-	{
-		m.orig = this->_board[from];
-		this->_board[to] = this->_board[from];
-		this->_board[from] = EMPTY;
-
-		if ((from & COLOR) == WHITE)
-			d = d - 8;
-		else
-			d = 8 - d;
-
-		if (!this->_history.empty())
-		{
-			const Move_t& top = this->_history.top();
-			if (top.from != from || top.to != to)
-			{
-				return false;
-			}
-		}
-		else
-		{
-			/*We do not allow EP if there is no history (generated position with fen string)*/
-			return false;
-		}
-
-		m.capture = this->_board[from + d] | EP;
-		this->_board[from + d] = EMPTY;
-
-		/*move is not allowed if we are in check after it*/
-		if (this->in_check(this->_color))
-		{
-			this->_board[from + d] = m.capture & (EP ^ 1);
-			this->_board[from] = m.orig;
-			this->_board[to] = EMPTY;
-			return false;
-		}
-		this->_history.push(m);
-		this->_color = (this->_color == WHITE) ? BLACK : WHITE;
-		return true;
-	}
-
 	m.capture = this->_board[to];
 	m.orig = this->_board[from];
 
-	/*Promoting*/
-	int8_t row_fr, row_to;
-	row_fr = from / 8;
-	row_to = to / 8;
-	if (this->_color == WHITE && row_fr == 6 && row_to == 7 && promotoe == EMPTY)
-	{
-		return false;
-	}
-
-	if (this->_color == BLACK && row_fr == 1 && row_to == 0 && promotoe == EMPTY)
-	{
-		return false;
-	}
-
-	if (promotoe != EMPTY)
-	{
-		this->_board[from] = EMPTY;
-		this->_board[to] = promotoe;
-	}
-	else
-	{
-		/*make normal or capture move*/
-		this->_board[to] = m.orig | MOVED;
-		this->_board[from] = EMPTY;
-	}
+	/*make normal or capture move*/
+	this->_board[to] = m.orig | MOVED;
+	this->_board[from] = EMPTY;
 
 	/*move is not allowed if we are in check after it*/
 	if (this->in_check(this->_color))
@@ -210,9 +145,9 @@ bool Board::move(uint8_t from, uint8_t to, Piece_t promotoe)
 		this->_board[from] = m.orig;
 		return false;
 	}
-
 	this->_history.push(m);
 	this->_color = (this->_color == WHITE) ? BLACK : WHITE;
+
 	return true;
 }
 

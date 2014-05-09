@@ -27,26 +27,52 @@ eng::Engine<eng::Board, eng::MoveGenerator<eng::Board>, eng::Evaluator<eng::Boar
  * http://chessprogramming.wikispaces.com/Perft+Results
  */
 
+static int checks = 0;
+static int mates = 0;
+
 template<class BOARD_T, class MOVGEN_T>
 uint64_t _perft(uint32_t depth, BOARD_T& board, MOVGEN_T& gen)
 {
 	uint64_t nodes = 0;
 
-	if (depth == 0)
-		return 1;
-
 	std::vector<typename BOARD_T::GenMove_t> moves;
-	gen.gen_moves(board, moves);
 
+	if (depth == 0)
+	{
+		if (board.in_check(board.get_color()))
+		{
+			bool no_move = true;
+			checks++;
+			gen.gen_moves(board, moves);
+			for (auto it = moves.begin(); it != moves.end(); it++)
+			{
+				if (!board.move(*it))
+				{
+					continue;
+				}
+				no_move = false;
+				board.take_back();
+				break;
+			}
+			if (no_move)
+			{
+				mates++;
+			}
+		}
+
+		return 1;
+	}
+
+	gen.gen_moves(board, moves);
 	for (auto it = moves.begin(); it != moves.end(); it++)
 	{
 		if (board.move(*it))
 		{
-			board.print_board();
 			nodes += _perft(depth - 1, board, gen);
 			board.take_back();
 		}
 	}
+
 	return nodes;
 }
 
@@ -58,11 +84,13 @@ void perft(uint32_t depth)
 	board.print_board();
 	uint64_t nodes = _perft(depth, board, gen);
 	g_log << "nodes: " << nodes << std::endl;
+	g_log << "checks: " << checks << std::endl;
+	g_log << "mates: " << mates << std::endl;
 }
 
 int main()
 {
-	perft(1);
+	perft(5);
 //	std::thread th(uci_input_th);
 //	engine.start();
 //	th.join();
@@ -127,7 +155,7 @@ void uci_input_th()
 			quit = true;
 			engine.quit();
 		}
-		else if(!cmd.compare("print"))
+		else if (!cmd.compare("print"))
 		{
 			engine.print_board();
 		}
