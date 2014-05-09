@@ -10,9 +10,6 @@
 #include "Board.h"
 #include "../Globals.h"
 
-#include <set>
-#include <string>
-
 namespace eng
 {
 
