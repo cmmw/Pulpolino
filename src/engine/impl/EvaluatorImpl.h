@@ -7,7 +7,7 @@
 
 #include "../Evaluator.h"
 #include "../BoardBase.h"
-#include "../../Globals.h"
+#include "../../globals.h"
 
 namespace eng
 {

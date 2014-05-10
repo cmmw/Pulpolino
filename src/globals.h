@@ -1,5 +1,5 @@
 /*
- * Globals.h
+ * globals.h
  *
  *  Created on: 05.05.2014
  *      Author: Christian

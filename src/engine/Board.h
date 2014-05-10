@@ -10,6 +10,7 @@
 
 #include <cstdint>
 #include <stack>
+#include <string>
 
 #include "BoardBase.h"
 
@@ -42,11 +43,6 @@ public:
 		WHITE = 0 << 7, BLACK = 1 << 7
 	};
 
-	enum Mask_t
-	{
-		COLOR = 1 << 7, EP = 1 << 5, CASTLE = 1 << 4, MOVED = 1 << 3, PIECE = 7
-	};
-
 	Board();
 	Board(Color_t c);
 	~Board() = default;
@@ -55,11 +51,11 @@ public:
 	Board(const Board&) = delete;
 	Board& operator=(const Board&) = delete;
 
-	void print_board();
+	void print();
 	bool move(const char* move);
 	bool move(const GenMove_t& move);
 	bool move(uint8_t from, uint8_t to, Piece_t promote = EMPTY);
-	void reset_board();
+	void reset();
 	void clear_history();
 	bool take_back();
 
@@ -103,6 +99,11 @@ public:
 	static std::string mov_to_str(const GenMove_t& mov);
 
 private:
+
+	enum Mask_t
+	{
+		COLOR = 1 << 7, DIR = 1 << 6, EP = 1 << 5, CASTLE = 1 << 4, MOVED = 1 << 3, PIECE = 7
+	};
 
 	std::stack<Move_t> _history;
 	/*Color to move in the current position*/

@@ -8,7 +8,7 @@
 #include <iostream>
 #include <cstring>
 #include "Board.h"
-#include "../Globals.h"
+#include "../globals.h"
 
 namespace eng
 {
@@ -26,30 +26,30 @@ const uint8_t Board::init_board[] =
 				ROOK | BLACK, KNIGHT | BLACK, BISHOP | BLACK, QUEEN | BLACK, KING | BLACK, BISHOP | BLACK, KNIGHT | BLACK, ROOK | BLACK
 
 //				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-//				EMPTY, EMPTY, EMPTY, PAWN | WHITE, EMPTY, EMPTY, EMPTY, EMPTY,
+//				EMPTY, EMPTY, EMPTY, WHITE | PAWN, EMPTY, EMPTY, EMPTY, EMPTY,
 //
 //				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-//				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+//				EMPTY, EMPTY, PAWN | BLACK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
 //				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
 //				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
 //
-//				EMPTY, PAWN | BLACK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+//				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
 //				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
 		};
 
 Board::Board() :
 		_color(WHITE)
 {
-	this->reset_board();
+	this->reset();
 }
 
 Board::Board(Color_t c)
 {
-	this->reset_board();
+	this->reset();
 	this->_color = c;
 }
 
-void Board::print_board()
+void Board::print()
 {
 	uint8_t piece;
 	uint8_t color;
@@ -80,9 +80,10 @@ void Board::print_board()
 	g_log << std::endl << "-----------------" << std::endl;
 }
 
-void Board::reset_board()
+void Board::reset()
 {
 	this->_color = WHITE;
+	this->clear_history();
 	memcpy(this->_board, Board::init_board, sizeof(this->_board));
 }
 
@@ -126,18 +127,70 @@ bool Board::move(uint8_t from, uint8_t to, Piece_t promote)
 {
 	/* TODO finish implementation (check for legal castle move. Promoting... etc) there are still some invalid moves...*/
 	Move_t m;
+	bool moved = false;
+	int8_t d = 0;
 	m.from = from;
 	m.to = to;
 	m.capture = this->_board[to];
 	m.orig = this->_board[from];
 
-	/*make normal or capture move*/
-	this->_board[to] = m.orig | MOVED;
-	this->_board[from] = EMPTY;
+	/*en passant move*/
+	if ((this->_board[from] & PIECE) == PAWN)
+	{
+		uint8_t row_fr = from >> 3; /*divison by 8*/
+		uint8_t row_to = to >> 3;
+		d = to - from; /*points to the captured pawn*/
+		if (row_fr == 4 && this->_color == WHITE && row_to == 5)
+		{
+			moved = true;
+			d = d - 8;
+		}
+		else if (row_fr == 3 && this->_color == BLACK && row_to == 2)
+		{
+			moved = true;
+			d = d + 8;
+		}
 
-	/*move is not allowed if we are in check after it*/
+		if (moved)
+		{
+			/*we do not allow e.p. move if position was generated via fen string*/
+			if (this->_history.empty())
+			{
+				return false;
+			}
+			else
+			{
+				const Move_t& mh = this->_history.top();
+				if (mh.to != from + d || (mh.from != mh.to - 2 * 8 && mh.from != mh.to + 2 * 8))
+					return false;
+
+			}
+			if (d == 1)
+				m.capture = this->_board[from + d] | EP | DIR;
+			else
+				m.capture = this->_board[from + d] | EP;
+
+			this->_board[d + from] = EMPTY;
+			this->_board[to] = this->_board[from];
+			this->_board[from] = EMPTY;
+		}
+	}
+
+	if (!moved)
+	{
+		/*make normal or capture move*/
+		this->_board[to] = m.orig | MOVED;
+		this->_board[from] = EMPTY;
+	}
+
+	/*move is not allowed if we are in check after it, take it back*/
 	if (this->in_check(this->_color))
 	{
+		if (m.capture & EP)
+		{
+			this->_board[d + from] = m.capture & ~(EP | DIR);
+			m.capture = EMPTY;
+		}
 		this->_board[to] = m.capture;
 		this->_board[from] = m.orig;
 		return false;
@@ -214,8 +267,25 @@ bool Board::take_back()
 
 	Move_t m = this->_history.top();
 	this->_history.pop();
+
+	/*take back e.p. move*/
+	if (m.capture & EP)
+	{
+		if (m.capture & DIR)
+		{
+			this->_board[m.from + 1] = m.capture & ~(EP | DIR);
+		}
+		else
+		{
+			this->_board[m.from - 1] = m.capture & ~EP;
+		}
+		this->_board[m.to] = EMPTY;
+	}
+	else
+	{
+		this->_board[m.to] = m.capture;
+	}
 	this->_board[m.from] = m.orig;
-	this->_board[m.to] = m.capture;
 	this->_color = (this->_color == WHITE) ? BLACK : WHITE;
 	return true;
 }
@@ -228,9 +298,9 @@ std::string Board::mov_to_str(const GenMove_t& mov)
 			{ '1', '2', '3', '4', '5', '6', '7', '8' };
 
 	char from_f = _letter[(mov.from % 8)];
-	char from_r = _digit[(mov.from / 8)];
+	char from_r = _digit[(mov.from >> 3)];
 	char to_f = _letter[(mov.to % 8)];
-	char to_r = _digit[(mov.to / 8)];
+	char to_r = _digit[(mov.to >> 3)];
 
 	return
 	{	from_f, from_r, to_f, to_r};

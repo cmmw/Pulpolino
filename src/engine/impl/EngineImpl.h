@@ -10,7 +10,7 @@
 #include <sstream>
 #include <vector>
 #include "../Engine.h"
-#include "../../Globals.h"
+#include "../../globals.h"
 
 namespace eng
 {
@@ -125,7 +125,7 @@ void Engine<BOARD_T, MOVGEN_T, EVAL_T>::position(const std::string& pos)
 	{
 		if (!it->compare("startpos"))
 		{
-			this->_board.reset_board();
+			this->_board.reset();
 		}
 		else if (!it->compare("fen"))
 		{
@@ -146,7 +146,7 @@ void Engine<BOARD_T, MOVGEN_T, EVAL_T>::position(const std::string& pos)
 template<class BOARD_T, class MOVGEN_T, class EVAL_T>
 void Engine<BOARD_T, MOVGEN_T, EVAL_T>::print_board()
 {
-	this->_board.print_board();
+	this->_board.print();
 }
 
 } /* namespace eng */

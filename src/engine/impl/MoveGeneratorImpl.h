@@ -6,7 +6,7 @@
  */
 
 #include "../MoveGenerator.h"
-#include "../../Globals.h"
+#include "../../globals.h"
 #include "../BoardBase.h"
 #include "../Board.h"
 
@@ -61,7 +61,7 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOAR
 			{
 				/*Single and double push*/
 				int32_t step, row;
-				row = i / 8;
+				row = i >> 3;
 				step = (c1 == BOARD_T::WHITE) ? 1 : -1;
 				if (board.get_piece(i + (step * 8)) == BoardBase::EMPTY)
 				{
@@ -74,7 +74,7 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOAR
 
 				/*pawn capture*/
 				int32_t n;
-				n = BoardBase::_mailbox[BoardBase::_mailbox64[i] + step + (step * 10)];		//10 = offset in mailbox for pawns
+				n = BoardBase::_mailbox[BoardBase::_mailbox64[i] + step + (step * 10)]; /*10 = offset in mailbox for pawns*/
 				if (n != -1 && board.get_piece(n) != BoardBase::EMPTY)
 				{
 					if (board.get_color(n) == c2)

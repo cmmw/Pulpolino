@@ -11,91 +11,22 @@
 #include <algorithm>
 #include <iterator>
 #include <sstream>
-#include <chrono>
-#include <ctime>
 
 #include "engine/Board.h"
 #include "engine/Evaluator.h"
 
 #include "main.h"
-#include "Globals.h"
+#include "tests/Test.h"
+#include "globals.h"
 
 Logger g_log;
-eng::Engine<eng::Board, eng::MoveGenerator<eng::Board>, eng::Evaluator<eng::Board>> engine;
-
-/*
- * MoveGenerator tester, compare results with:
- *
- * http://chessprogramming.wikispaces.com/Perft+Results
- */
-
-static int checks = 0;
-static int mates = 0;
-
-template<class BOARD_T, class MOVGEN_T>
-uint64_t _perft(uint32_t depth, BOARD_T& board, MOVGEN_T& gen)
-{
-	uint64_t nodes = 0;
-
-	std::vector<typename BOARD_T::GenMove_t> moves;
-
-	if (depth == 0)
-	{
-		if (board.in_check(board.get_color()))
-		{
-			bool no_move = true;
-			checks++;
-			gen.gen_moves(board, moves);
-			for (auto it = moves.begin(); it != moves.end(); it++)
-			{
-				if (!board.move(*it))
-				{
-					continue;
-				}
-				no_move = false;
-				board.take_back();
-				break;
-			}
-			if (no_move)
-			{
-				mates++;
-			}
-		}
-		return 1;
-	}
-
-	gen.gen_moves(board, moves);
-	for (auto it = moves.begin(); it != moves.end(); it++)
-	{
-		if (board.move(*it))
-		{
-			nodes += _perft(depth - 1, board, gen);
-			board.take_back();
-		}
-	}
-	return nodes;
-}
-
-void perft(uint32_t depth)
-{
-	eng::Board board;
-	eng::MoveGenerator<eng::Board> gen;
-	std::vector<eng::Board::GenMove_t> moves;
-	std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-	std::time_t t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-	g_log << "depth " << depth << ", started at " << ctime(&t) << std::endl;
-	uint64_t nodes = _perft(depth, board, gen);
-	std::chrono::steady_clock::duration duration = std::chrono::steady_clock::now() - start;
-	double seconds = static_cast<double>(duration.count()) * std::chrono::steady_clock::period::num / std::chrono::steady_clock::period::den;
-	g_log << "nodes: " << nodes << std::endl;
-	g_log << "checks: " << checks << std::endl;
-	g_log << "mates: " << mates << std::endl;
-	g_log << "time needed: " << seconds << " seconds, " << (seconds / 60) << " minutes" << std::endl << std::endl;
-}
+static eng::Engine<eng::Board, eng::MoveGenerator<eng::Board>, eng::Evaluator<eng::Board>> engine;
 
 int main()
 {
-	perft(5);
+	test::Test::ep<eng::Board>();
+	//test::Test::perft<eng::Board, eng::MoveGenerator<eng::Board>>(4);
+
 //	std::thread th(uci_input_th);
 //	engine.start();
 //	th.join();
