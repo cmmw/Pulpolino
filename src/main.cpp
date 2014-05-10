@@ -26,7 +26,7 @@ static eng::Engine<eng::Board, eng::MoveGenerator<eng::Board>, eng::Evaluator<en
 int main()
 {
 	test::Test::ep<eng::Board>();
-	//test::Test::perft<eng::Board, eng::MoveGenerator<eng::Board>>(4);
+	test::Test::perft<eng::Board, eng::MoveGenerator<eng::Board>>(5);
 
 //	std::thread th(uci_input_th);
 //	engine.start();

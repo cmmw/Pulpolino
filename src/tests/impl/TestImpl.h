@@ -45,6 +45,13 @@ void Test::ep()
 	assert(board.get_piece(36) == old);
 	assert(board.get_piece(43) == eng::BoardBase::EMPTY);
 
+	board.take_back();
+	assert(board.get_piece(35) == eng::BoardBase::EMPTY);
+	assert(board.get_piece(51) == capt);
+
+	board.take_back();
+	assert(board.get_piece(28) == old);
+
 	board.reset();
 
 	board.move("a2a3");
@@ -72,6 +79,13 @@ void Test::ep()
 	assert(board.get_piece(28) == capt);
 	assert(board.get_piece(27) == old);
 	assert(board.get_piece(20) == eng::BoardBase::EMPTY);
+
+	board.take_back();
+	assert(board.get_piece(28) == eng::BoardBase::EMPTY);
+	assert(board.get_piece(12) == capt);
+
+	board.take_back();
+	assert(board.get_piece(35) == old);
 
 	g_log << "En passant test ok" << std::endl;
 }
