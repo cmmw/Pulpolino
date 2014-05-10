@@ -23,7 +23,7 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOAR
 	c1 = board.get_color();
 	c2 = (c1 == BOARD_T::WHITE) ? BOARD_T::BLACK : BOARD_T::WHITE;
 
-	/* TODO missing moves: castle, promoting, en passant */
+	/* TODO missing moves: castle, promoting*/
 	for (int i = 0; i < 64; i++)
 	{
 		piece = board.get_piece(i);

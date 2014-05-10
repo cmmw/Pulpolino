@@ -192,6 +192,7 @@ bool Board::move(uint8_t from, uint8_t to, Piece_t promote)
 		this->_board[from] = m.orig;
 		return false;
 	}
+
 	this->_history.push(m);
 	this->_color = (this->_color == WHITE) ? BLACK : WHITE;
 	this->_ply++;

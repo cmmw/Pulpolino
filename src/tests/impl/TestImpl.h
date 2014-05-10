@@ -93,15 +93,69 @@ void Board::ep()
 	board.set_fen_pos("8/8/8/pP6/8/8/8/8 w - a6 0 0");
 	assert(board.move("b5a6"));
 
+	board.set_fen_pos("8/8/8/Pp6/8/8/8/8 w - b6 0 0");
+	assert(board.move("a5b6"));
+
 	board.set_fen_pos("8/8/8/6pP/8/8/8/8 w - g6 0 0");
 	assert(board.move("h5g6"));
 
-	board.set_fen_pos("8/8/8/Pp6/8/8/8/8 w - b6 0 0");
-	assert(board.move("a5b6"));
+	board.set_fen_pos("8/8/8/6Pp/8/8/8/8 w - h6 0 0");
+	assert(board.move("g5h6"));
 
 	board.set_fen_pos("8/1p6/8/P7/8/8/8/8 b - - 0 0");
 	assert(board.move("b7b5"));
 	assert(board.move("a5b6"));
+	assert(board.get_piece(33) == eng::BoardBase::EMPTY);
+
+	board.set_fen_pos("8/p7/8/1P6/8/8/8/8 b - - 0 0");
+	assert(board.move("a7a5"));
+	assert(board.move("b5a6"));
+	assert(board.get_piece(32) == eng::BoardBase::EMPTY);
+
+	board.set_fen_pos("8/7p/8/6P1/8/8/8/8 b - - 0 0");
+	assert(board.move("h7h5"));
+	assert(board.move("g5h6"));
+	assert(board.get_piece(39) == eng::BoardBase::EMPTY);
+
+	board.set_fen_pos("8/6p1/8/7P/8/8/8/8 b - - 0 0");
+	assert(board.move("g7g5"));
+	assert(board.move("h5g6"));
+	assert(board.get_piece(38) == eng::BoardBase::EMPTY);
+
+	board.set_fen_pos("8/8/8/8/3pP3/8/8/8 b - e3 0 0");
+	assert(board.move("d4e3"));
+
+	board.set_fen_pos("8/8/8/8/pP6/8/8/8 b - b3 0 0");
+	assert(board.move("a4b3"));
+
+	board.set_fen_pos("8/8/8/8/Pp6/8/8/8 b - a3 0 0");
+	assert(board.move("b4a3"));
+
+	board.set_fen_pos("8/8/8/8/6pP/8/8/8 b - h3 0 0");
+	assert(board.move("g4h3"));
+
+	board.set_fen_pos("8/8/8/8/6Pp/8/8/8 b - g3 0 0");
+	assert(board.move("h4g3"));
+
+	board.set_fen_pos("8/8/8/8/1p6/8/P7/8 w - - 0 0");
+	assert(board.move("a2a4"));
+	assert(board.move("b4a3"));
+	assert(board.get_piece(24) == eng::BoardBase::EMPTY);
+
+	board.set_fen_pos("8/8/8/8/p7/8/1P6/8 w - - 0 0");
+	assert(board.move("b2b4"));
+	assert(board.move("a4b3"));
+	assert(board.get_piece(25) == eng::BoardBase::EMPTY);
+
+	board.set_fen_pos("8/8/8/8/6p1/8/7P/8 w - - 0 0");
+	assert(board.move("h2h4"));
+	assert(board.move("g4h3"));
+	assert(board.get_piece(31) == eng::BoardBase::EMPTY);
+
+	board.set_fen_pos("8/8/8/8/7p/8/6P1/8 w - - 0 0");
+	assert(board.move("g2g4"));
+	assert(board.move("h4g3"));
+	assert(board.get_piece(30) == eng::BoardBase::EMPTY);
 
 	g_log << "Board en passant test ok" << std::endl;
 }
