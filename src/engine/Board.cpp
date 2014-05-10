@@ -14,28 +14,17 @@ namespace eng
 {
 
 const uint8_t Board::init_board[] =
-		{
 
+{
 		ROOK | WHITE, KNIGHT | WHITE, BISHOP | WHITE, QUEEN | WHITE, KING | WHITE, BISHOP | WHITE, KNIGHT | WHITE, ROOK | WHITE,
-				PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE,
-				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-				PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK,
-				ROOK | BLACK, KNIGHT | BLACK, BISHOP | BLACK, QUEEN | BLACK, KING | BLACK, BISHOP | BLACK, KNIGHT | BLACK, ROOK | BLACK
-
-//				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-//				EMPTY, EMPTY, EMPTY, WHITE | PAWN, EMPTY, EMPTY, EMPTY, EMPTY,
-//
-//				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-//				EMPTY, EMPTY, PAWN | BLACK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-//				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-//				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-//
-//				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-//				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-		};
+		PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE, PAWN | WHITE,
+		EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+		EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+		EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+		EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
+		PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK, PAWN | BLACK,
+		ROOK | BLACK, KNIGHT | BLACK, BISHOP | BLACK, QUEEN | BLACK, KING | BLACK, BISHOP | BLACK, KNIGHT | BLACK, ROOK | BLACK
+};
 
 Board::Board() :
 		_color(WHITE)
@@ -82,6 +71,9 @@ void Board::print()
 
 void Board::reset()
 {
+	this->_ply = 0;
+	this->_mov = 0;
+	this->_ep = -1;
 	this->_color = WHITE;
 	this->clear_history();
 	memcpy(this->_board, Board::init_board, sizeof(this->_board));
@@ -127,6 +119,7 @@ bool Board::move(uint8_t from, uint8_t to, Piece_t promote)
 {
 	/* TODO finish implementation (check for legal castle move. Promoting... etc)*/
 	Move_t m;
+	Piece_t piece;
 	bool moved = false;
 	int8_t d = 0;
 	m.from = from;
@@ -134,8 +127,12 @@ bool Board::move(uint8_t from, uint8_t to, Piece_t promote)
 	m.capture = this->_board[to];
 	m.orig = this->_board[from];
 
+	piece = static_cast<Piece_t>(this->_board[from] & PIECE);
+	if (piece == EMPTY)
+		return false;
+
 	/*en passant move*/
-	if ((this->_board[from] & PIECE) == PAWN)
+	if (piece == PAWN)
 	{
 		uint8_t row_fr = from >> 3; /*divison by 8*/
 		uint8_t row_to = to >> 3;
@@ -153,10 +150,10 @@ bool Board::move(uint8_t from, uint8_t to, Piece_t promote)
 
 		if (moved)
 		{
-			/*we do not allow e.p. move if position was generated via fen string*/
 			if (this->_history.empty())
 			{
-				return false;
+				if (this->_ep != to)
+					return false;
 			}
 			else
 			{
@@ -197,7 +194,9 @@ bool Board::move(uint8_t from, uint8_t to, Piece_t promote)
 	}
 	this->_history.push(m);
 	this->_color = (this->_color == WHITE) ? BLACK : WHITE;
-
+	this->_ply++;
+	if (this->_color == WHITE)
+		this->_mov++;
 	return true;
 }
 
@@ -305,6 +304,160 @@ std::string Board::mov_to_str(const GenMove_t& mov)
 	return
 	{	from_f, from_r, to_f, to_r};
 
+}
+
+void Board::set_fen_pos(const char* fen)
+{
+	uint32_t i, row, file;
+	this->reset();
+	memset(this->_board, EMPTY, sizeof(this->_board));
+	i = 0;
+	row = 7;
+	file = 0;
+	while (fen[i] != ' ')
+	{
+		square_t &p = this->_board[row * 8 + file];
+		switch (fen[i])
+		{
+		case 'p':
+			p = BLACK | PAWN;
+			break;
+		case 'r':
+			p = BLACK | ROOK;
+			break;
+		case 'n':
+			p = BLACK | KNIGHT;
+			break;
+		case 'b':
+			p = BLACK | BISHOP;
+			break;
+		case 'q':
+			p = BLACK | QUEEN;
+			break;
+		case 'k':
+			p = BLACK | KING;
+			break;
+
+		case 'P':
+			p = WHITE | PAWN;
+			break;
+		case 'R':
+			p = WHITE | ROOK;
+			break;
+		case 'N':
+			p = WHITE | KNIGHT;
+			break;
+		case 'B':
+			p = WHITE | BISHOP;
+			break;
+		case 'Q':
+			p = WHITE | QUEEN;
+			break;
+		case 'K':
+			p = WHITE | KING;
+			break;
+
+		case '/':
+			row--;
+			file = -1;
+			break;
+
+		default:
+			file = fen[i] - '1';
+			break;
+
+		}
+		i++;
+		file++;
+	}
+
+	i++;
+
+	/*color group*/
+	switch (fen[i])
+	{
+	case 'w':
+		this->_color = WHITE;
+		break;
+	case 'b':
+		this->_color = BLACK;
+		break;
+	default:
+		g_log << "info string [FATAL] missing color in fen string" << std::endl;
+		this->_color = WHITE;
+		break;
+	}
+
+	/*castle group*/
+	this->_board[7] |= MOVED;
+	this->_board[0] |= MOVED;
+	this->_board[63] |= MOVED;
+	this->_board[56] |= MOVED;
+	i += 2;
+	while (fen[i] != ' ')
+	{
+		switch (fen[i])
+		{
+		case 'K':
+			this->_board[7] &= ~MOVED;
+			break;
+		case 'Q':
+			this->_board[0] &= ~MOVED;
+			break;
+		case 'k':
+			this->_board[63] &= ~MOVED;
+			break;
+		case 'q':
+			this->_board[56] &= ~MOVED;
+			break;
+		case '-':
+			break;
+		}
+		i++;
+	}
+
+	/*en passant group*/
+	i++;
+	if (fen[i] != '-')
+	{
+		file = fen[i] - 'a';
+		i++;
+		row = fen[i] - '1';
+		this->_ep = row * 8 + file;
+	}
+
+	/*ply number group*/
+	i += 2;
+
+	char tmp[16] =
+			{ 0 };
+	uint32_t j = 0;
+
+	while (fen[i] != ' ')
+	{
+		tmp[j] = fen[i];
+		j++;
+		i++;
+	}
+
+	this->_ply = strtol(tmp, NULL, 10);
+
+	/*move number group*/
+	i++;
+	memset(tmp, 0, sizeof(tmp));
+	j = 0;
+	while (fen[i] != 0)
+	{
+		tmp[j] = fen[i];
+		j++;
+		i++;
+	}
+	this->_mov = strtol(tmp, NULL, 10);
+
+	if (i != strlen(fen))
+	{
+		g_log << "info string [WARNING] fen string parse problem " << std::endl;
+	}
 }
 
 } /* namespace eng */

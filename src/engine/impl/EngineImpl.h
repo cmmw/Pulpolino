@@ -121,7 +121,9 @@ void Engine<BOARD_T, MOVGEN_T, EVAL_T>::position(const std::string& pos)
 	std::vector<std::string> cmds;
 	std::istringstream iss(pos);
 	std::copy(std::istream_iterator<std::string>(iss), std::istream_iterator<std::string>(), std::back_inserter<std::vector<std::string> >(cmds));
-	for (std::vector<std::string>::iterator it = cmds.begin(); it != cmds.end(); it++)
+	std::vector<std::string>::iterator it = cmds.begin();
+	it++;
+	for (; it != cmds.end(); it++)
 	{
 		if (!it->compare("startpos"))
 		{
@@ -130,6 +132,8 @@ void Engine<BOARD_T, MOVGEN_T, EVAL_T>::position(const std::string& pos)
 		else if (!it->compare("fen"))
 		{
 			/* TODO finish implementation of uci command fen */
+			this->_board.set_fen_pos(pos.c_str()+13);
+			it+=6;
 		}
 		else if (!it->compare("moves"))
 		{
@@ -139,6 +143,9 @@ void Engine<BOARD_T, MOVGEN_T, EVAL_T>::position(const std::string& pos)
 			}
 			this->_board.clear_history();
 			break;
+		} else
+		{
+			g_log << "info string unknown position string: " << *it << std::endl;
 		}
 	}
 }

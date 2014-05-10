@@ -58,6 +58,7 @@ public:
 	void reset();
 	void clear_history();
 	bool take_back();
+	void set_fen_pos(const char* fen);
 
 	inline Color_t get_color(int8_t idx)
 	{
@@ -69,11 +70,6 @@ public:
 		return static_cast<Piece_t>(this->_board[idx] & PIECE);
 	}
 
-	inline bool has_moved(uint8_t idx)
-	{
-		return static_cast<bool>(this->_board[idx] & MOVED) && ((this->_board[idx] & PIECE) != EMPTY);
-	}
-
 	inline GenMove_t gen_mov(uint8_t from, uint8_t to, Piece_t p = EMPTY)
 	{
 		return
@@ -83,12 +79,6 @@ public:
 	inline Color_t get_color()
 	{
 		return this->_color;
-	}
-
-	/*return piece at idx*/
-	inline square_t operator[](uint32_t idx)
-	{
-		return this->_board[idx];
 	}
 
 	/*check if color c is checked in current position*/
@@ -105,10 +95,6 @@ private:
 		COLOR = 1 << 7, DIR = 1 << 6, EP = 1 << 5, CASTLE = 1 << 4, MOVED = 1 << 3, PIECE = 7
 	};
 
-	std::stack<Move_t> _history;
-	/*Color to move in the current position*/
-	Color_t _color;
-
 	square_t _board[64] =
 			{ 0 };
 
@@ -117,6 +103,12 @@ private:
 
 	const static square_t init_board[];
 
+	std::stack<Move_t> _history;
+	/*Color to move in the current position*/
+	Color_t _color;
+	uint32_t _ply = 0;
+	uint32_t _mov = 0;
+	int32_t _ep = -1; /*fen string ep*/
 };
 
 } /* namespace eng */

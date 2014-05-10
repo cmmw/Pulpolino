@@ -21,7 +21,6 @@ namespace eng
  * BOARD_T::Piece_t get_piece(uint8_t idx)
  * BOARD_T::Color_t get_color(uint8_t idx)
  * BOARD_T::Color_t get_color()									returns the color which is to move
- * bool has_moved(uint8_t idx)			      					returns false if there is a piece on the square and the piece has not been moved until now
  * BOARD_T::GenMov_t gen_mov(uint8_t from, uint8_t to);		build a GenMov_t with given arguments, needed to create a list of moves
  *
  *

@@ -25,8 +25,10 @@ static eng::Engine<eng::Board, eng::MoveGenerator<eng::Board>, eng::Evaluator<en
 /*TODO use concepts for template parameter*/
 int main()
 {
-	test::Test::ep<eng::Board>();
-	test::Test::perft<eng::Board, eng::MoveGenerator<eng::Board>>(5);
+
+	test::Board::ep<eng::Board>();
+	test::Generator::ep<eng::Board, eng::MoveGenerator<eng::Board>>();
+	test::Generator::perft<eng::Board, eng::MoveGenerator<eng::Board>>(5);
 
 //	std::thread th(uci_input_th);
 //	engine.start();

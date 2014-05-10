@@ -60,8 +60,9 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOAR
 			else /*PAWN*/
 			{
 				/*Single and double push*/
-				int32_t step, row;
+				int32_t step, row, file;
 				row = i >> 3;
+				file = i % 8;
 				step = (c1 == BOARD_T::WHITE) ? 1 : -1;
 				if (board.get_piece(i + (step * 8)) == BoardBase::EMPTY)
 				{
@@ -91,6 +92,34 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOAR
 						moves.push_back(board.gen_mov(i, n));
 					}
 				}
+
+				/*en passant*/
+				if (file != 0)
+				{
+					if (row == 4 && board.get_piece(i - 1) != BoardBase::EMPTY && board.get_color(i - 1) == BOARD_T::BLACK && c1 == BOARD_T::WHITE)
+					{
+						moves.push_back(board.gen_mov(i, i + 8 - 1));
+					}
+
+					if (row == 3 && board.get_piece(i - 1) != BoardBase::EMPTY && board.get_color(i - 1) == BOARD_T::WHITE && c1 == BOARD_T::BLACK)
+					{
+						moves.push_back(board.gen_mov(i, i - 8 - 1));
+					}
+				}
+
+				if (file != 7)
+				{
+					if (row == 4 && board.get_piece(i + 1) != BoardBase::EMPTY && board.get_color(i + 1) == BOARD_T::BLACK && c1 == BOARD_T::WHITE)
+					{
+						moves.push_back(board.gen_mov(i, i + 8 + 1));
+					}
+
+					if (row == 3 && board.get_piece(i + 1) != BoardBase::EMPTY && board.get_color(i + 1) == BOARD_T::WHITE && c1 == BOARD_T::BLACK)
+					{
+						moves.push_back(board.gen_mov(i, i - 8 + 1));
+					}
+				}
+
 			}
 		}
 	}

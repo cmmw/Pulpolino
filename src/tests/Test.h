@@ -22,21 +22,28 @@ namespace test
  * http://chessprogramming.wikispaces.com/Perft+Results
  */
 
-class Test
+class Board
 {
 
 public:
-
-	/*Move generator tester*/
-	template<class BOARD_T, class MOVGEN_T>
-	static void perft(uint32_t depth);
 
 	/*Test en passant moves*/
 	template<class BOARD_T>
 	static void ep();
 
-private:
+};
 
+class Generator
+{
+
+public:
+	template<class BOARD_T, class MOVGEN_T>
+	static void perft(uint32_t depth);
+
+	template<class BOARD_T, class MOVGEN_T>
+	static void ep();
+
+private:
 	static uint32_t checks;
 	static uint32_t mates;
 
