@@ -22,6 +22,7 @@
 Logger g_log;
 static eng::Engine<eng::Board, eng::MoveGenerator<eng::Board>, eng::Evaluator<eng::Board>> engine;
 
+/*TODO use concepts for template parameter*/
 int main()
 {
 	test::Test::ep<eng::Board>();
