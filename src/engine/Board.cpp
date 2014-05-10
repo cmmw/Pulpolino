@@ -125,7 +125,7 @@ bool Board::move(const GenMove_t& move)
 
 bool Board::move(uint8_t from, uint8_t to, Piece_t promote)
 {
-	/* TODO finish implementation (check for legal castle move. Promoting... etc) there are still some invalid moves...*/
+	/* TODO finish implementation (check for legal castle move. Promoting... etc)*/
 	Move_t m;
 	bool moved = false;
 	int8_t d = 0;
