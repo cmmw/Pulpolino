@@ -500,9 +500,9 @@ uint64_t Generator::_perft(uint32_t depth, BOARD_T& board, MOVGEN_T& gen)
 			bool no_move = true;
 			Generator::_checks++;
 			gen.gen_moves(board, moves);
-			for (auto it = moves.begin(); it != moves.end(); it++)
+			for (auto const &it : moves)
 			{
-				if (!board.move(*it))
+				if (!board.move(it))
 				{
 					continue;
 				}
@@ -519,13 +519,13 @@ uint64_t Generator::_perft(uint32_t depth, BOARD_T& board, MOVGEN_T& gen)
 	}
 
 	gen.gen_moves(board, moves);
-	for (auto it = moves.begin(); it != moves.end(); it++)
+	for (auto const &it : moves)
 	{
 		uint32_t pieces;
 		if (depth == 1)
 			pieces = count_pieces(board);
 
-		if (board.move(*it))
+		if (board.move(it))
 		{
 			if (depth == 1 && pieces != count_pieces(board))
 				_captures++;
@@ -690,20 +690,35 @@ void Generator::checks()
 {
 	BOARD_T board;
 	MOVGEN_T gen;
-	bool ok = false;
 	std::vector<typename BOARD_T::GenMove_t> moves;
 
 	board.set_fen_pos("4kbnr/3p4/p3p3/P4N1p/4PP2/2Pq4/2r2K1P/6R1 w k - 0 29");
+	assert(!Generator::is_mate(board, gen));
+
+	board.set_fen_pos("8/8/8/B7/3N4/4R3/3k1P2/8 b - - 0 1");
+	assert(!Generator::is_mate(board, gen));
+
+	board.set_fen_pos("8/8/8/B7/3N4/4R3/2Qk1P2/8 b - - 0 1");
+	assert(Generator::is_mate(board, gen));
+
+}
+
+template<class BOARD_T, class MOVGEN_T>
+bool Generator::is_mate(BOARD_T& board, MOVGEN_T& gen)
+{
+	std::vector<typename BOARD_T::GenMove_t> moves;
 	gen.gen_moves(board, moves);
-	for (auto it = moves.begin(); it != moves.end(); it++)
+	bool mate = true;
+	for (auto const &it : moves)
 	{
-		if (it->from == 13 && it->to == 4)
+		if (board.move(it))
 		{
-			ok = true;
+			mate = false;
+			board.take_back();
 			break;
 		}
 	}
-	assert(ok);
+	return mate;
 }
 
 } /* namespace eng */

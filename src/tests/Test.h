@@ -65,6 +65,9 @@ private:
 	template<class BOARD_T>
 	static uint32_t count_pieces(BOARD_T& board);
 
+	template<class BOARD_T, class MOVGEN_T>
+	static bool is_mate(BOARD_T& t, MOVGEN_T& gen);
+
 };
 
 } /* namespace eng */
