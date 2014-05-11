@@ -22,14 +22,21 @@
 Logger g_log;
 static eng::Engine<eng::Board, eng::MoveGenerator<eng::Board>, eng::Evaluator<eng::Board>> engine;
 
+void run_tests()
+{
+//	test::Generator::perft<eng::Board, eng::MoveGenerator<eng::Board>>(6);
+	test::Board::test<eng::Board>();
+	test::Board::ep<eng::Board>();
+	test::Board::checks<eng::Board>();
+	test::Generator::test<eng::Board, eng::MoveGenerator<eng::Board>>();
+	test::Generator::ep<eng::Board, eng::MoveGenerator<eng::Board>>();
+	test::Generator::checks<eng::Board, eng::MoveGenerator<eng::Board>>();
+}
+
 /*TODO use concepts for template parameter*/
 int main()
 {
-	test::Generator::perft<eng::Board, eng::MoveGenerator<eng::Board>>(5);
-//	test::Board::test<eng::Board>();
-//	test::Board::ep<eng::Board>();
-//	test::Generator::test<eng::Board, eng::MoveGenerator<eng::Board>>();
-//	test::Generator::ep<eng::Board, eng::MoveGenerator<eng::Board>>();
+	run_tests();
 
 //	std::thread th(uci_input_th);
 //	engine.start();

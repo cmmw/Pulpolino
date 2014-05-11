@@ -10,9 +10,9 @@
 namespace test
 {
 
-uint32_t Generator::checks = 0;
-uint32_t Generator::mates = 0;
-uint32_t Generator::captures = 0;
+uint32_t Generator::_checks = 0;
+uint32_t Generator::_mates = 0;
+uint32_t Generator::_captures = 0;
 
 template<class BOARD_T>
 void Board::ep()
@@ -216,7 +216,6 @@ void Board::ep()
 	assert(board.move("c6c5"));
 	assert(!board.move("b5c6"));
 
-
 	g_log << "Board en passant test ok" << std::endl;
 }
 
@@ -356,6 +355,35 @@ void Board::test()
 	g_log << "Board test ok" << std::endl;
 }
 
+template<class BOARD_T>
+void Board::checks()
+{
+	BOARD_T board;
+
+	board.set_fen_pos("8/8/8/1pp5/2n5/KP5r/8/k7 w - - 0 1");
+	assert(!board.move("b3c4"));
+
+	board.set_fen_pos("8/8/8/1pp5/2n5/KP6/8/k7 w - - 0 1");
+	assert(board.move("b3c4"));
+
+	board.set_fen_pos("8/4k3/8/2Pp4/2K5/8/8/8 w - d6 0 1");
+	assert(board.move("c5d6"));
+
+	board.set_fen_pos("8/2r1k3/8/2Pp4/2K5/8/8/8 w - - 0 1");
+	assert(!board.move("c5d6"));
+
+	board.set_fen_pos("8/4k3/8/2rp4/2K5/8/8/8 w - - 0 1");
+	assert(board.move("c4c5"));
+
+	board.set_fen_pos("8/4k3/8/p1rpp3/p3p3/2K5/r2N4/8 w - - 0 1");
+	assert(board.move("d2c4"));
+
+	board.set_fen_pos("4kbnr/3p4/p3p3/P4N1p/4PP2/2Pq4/2r2K1P/6R1 w k - 0 29");
+	assert(board.move("f2e1"));
+
+	g_log << "Board check test ok" << std::endl;
+}
+
 template<class BOARD_T, class MOVGEN_T>
 void Generator::test()
 {
@@ -441,9 +469,9 @@ void Generator::perft(uint32_t depth)
 	BOARD_T board;
 	MOVGEN_T gen;
 //	board.set_fen_pos("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w KQkq - 0 0");
-	Generator::checks = 0;
-	Generator::mates = 0;
-	Generator::captures = 0;
+	Generator::_checks = 0;
+	Generator::_mates = 0;
+	Generator::_captures = 0;
 	std::vector<typename BOARD_T::GenMove_t> moves;
 	std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
 	std::time_t t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
@@ -452,9 +480,9 @@ void Generator::perft(uint32_t depth)
 	std::chrono::steady_clock::duration duration = std::chrono::steady_clock::now() - start;
 	double seconds = static_cast<double>(duration.count()) * std::chrono::steady_clock::period::num / std::chrono::steady_clock::period::den;
 	g_log << "nodes: " << nodes << std::endl;
-	g_log << "captures: " << captures << std::endl;
-	g_log << "checks: " << Generator::checks << std::endl;
-	g_log << "mates: " << Generator::mates << std::endl;
+	g_log << "captures: " << _captures << std::endl;
+	g_log << "checks: " << Generator::_checks << std::endl;
+	g_log << "mates: " << Generator::_mates << std::endl;
 	g_log << "time needed: " << seconds << " seconds, " << (seconds / 60) << " minutes" << std::endl << std::endl;
 }
 
@@ -470,7 +498,7 @@ uint64_t Generator::_perft(uint32_t depth, BOARD_T& board, MOVGEN_T& gen)
 		if (board.in_check(board.get_color()))
 		{
 			bool no_move = true;
-			checks++;
+			Generator::_checks++;
 			gen.gen_moves(board, moves);
 			for (auto it = moves.begin(); it != moves.end(); it++)
 			{
@@ -484,7 +512,7 @@ uint64_t Generator::_perft(uint32_t depth, BOARD_T& board, MOVGEN_T& gen)
 			}
 			if (no_move)
 			{
-				mates++;
+				Generator::_mates++;
 			}
 		}
 		return 1;
@@ -500,7 +528,7 @@ uint64_t Generator::_perft(uint32_t depth, BOARD_T& board, MOVGEN_T& gen)
 		if (board.move(*it))
 		{
 			if (depth == 1 && pieces != count_pieces(board))
-				captures++;
+				_captures++;
 			nodes += _perft(depth - 1, board, gen);
 			board.take_back();
 		}
@@ -655,6 +683,27 @@ void Generator::ep()
 
 	g_log << "Generator en passant test ok" << std::endl;
 
+}
+
+template<class BOARD_T, class MOVGEN_T>
+void Generator::checks()
+{
+	BOARD_T board;
+	MOVGEN_T gen;
+	bool ok = false;
+	std::vector<typename BOARD_T::GenMove_t> moves;
+
+	board.set_fen_pos("4kbnr/3p4/p3p3/P4N1p/4PP2/2Pq4/2r2K1P/6R1 w k - 0 29");
+	gen.gen_moves(board, moves);
+	for (auto it = moves.begin(); it != moves.end(); it++)
+	{
+		if (it->from == 13 && it->to == 4)
+		{
+			ok = true;
+			break;
+		}
+	}
+	assert(ok);
 }
 
 } /* namespace eng */
