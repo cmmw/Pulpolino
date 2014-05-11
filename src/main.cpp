@@ -24,7 +24,7 @@ static eng::Engine<eng::Board, eng::MoveGenerator<eng::Board>, eng::Evaluator<en
 
 void run_tests()
 {
-	test::Generator::perft<eng::Board, eng::MoveGenerator<eng::Board>>(2);
+	test::Generator::perft<eng::Board, eng::MoveGenerator<eng::Board>>(1);
 //	test::Board::test<eng::Board>();
 //	test::Board::ep<eng::Board>();
 //	test::Board::checks<eng::Board>();
