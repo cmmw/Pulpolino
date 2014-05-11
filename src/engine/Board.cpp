@@ -132,20 +132,23 @@ bool Board::move(uint8_t from, uint8_t to, Piece_t promote)
 		return false;
 
 	/*en passant move*/
-	if (piece == PAWN)
+	if (piece == PAWN && this->get_piece(to) == BoardBase::EMPTY)
 	{
 		uint8_t row_fr = from >> 3; /*divison by 8*/
 		uint8_t row_to = to >> 3;
-		d = to - from; /*points to the captured pawn*/
-		if (row_fr == 4 && this->_color == WHITE && row_to == 5 && d % 8 != 0)
+		d = to - from; /*later points to the captured pawn*/
+		if (d % 8 != 0)
 		{
-			moved = true;
-			d = d - 8;
-		}
-		else if (row_fr == 3 && this->_color == BLACK && row_to == 2 && d % 8 != 0)
-		{
-			moved = true;
-			d = d + 8;
+			if (row_fr == 4 && this->_color == WHITE && row_to == 5)
+			{
+				moved = true;
+				d = d - 8;
+			}
+			else if (row_fr == 3 && this->_color == BLACK && row_to == 2)
+			{
+				moved = true;
+				d = d + 8;
+			}
 		}
 
 		if ((this->_board[from + d] & PIECE) == EMPTY || (this->_board[from + d] & COLOR) == this->_color)
@@ -197,7 +200,6 @@ bool Board::move(uint8_t from, uint8_t to, Piece_t promote)
 		this->_board[from] = m.orig;
 		return false;
 	}
-
 
 	this->_history.push(m);
 

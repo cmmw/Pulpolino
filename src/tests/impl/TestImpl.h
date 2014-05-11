@@ -18,7 +18,7 @@ template<class BOARD_T>
 void Board::ep()
 {
 	BOARD_T board;
-	typename BOARD_T::Piece_t old, capt;
+	typename BOARD_T::Piece_t orig, capt;
 
 	board.move("e2e4");
 	board.move("d7d6");
@@ -33,16 +33,16 @@ void Board::ep()
 	board.move("a7a6");
 	board.move("e4e5");
 	board.move("d7d5");
-	old = board.get_piece(36);
+	orig = board.get_piece(36);
 	capt = board.get_piece(35);
 	assert(board.move("e5d6"));
 	assert(board.get_piece(35) == eng::BoardBase::EMPTY);
 	assert(board.get_piece(36) == eng::BoardBase::EMPTY);
-	assert(board.get_piece(43) == old);
+	assert(board.get_piece(43) == orig);
 
 	board.take_back();
 	assert(board.get_piece(35) == capt);
-	assert(board.get_piece(36) == old);
+	assert(board.get_piece(36) == orig);
 	assert(board.get_piece(43) == eng::BoardBase::EMPTY);
 
 	board.take_back();
@@ -50,7 +50,7 @@ void Board::ep()
 	assert(board.get_piece(51) == capt);
 
 	board.take_back();
-	assert(board.get_piece(28) == old);
+	assert(board.get_piece(28) == orig);
 
 	board.reset();
 
@@ -68,16 +68,16 @@ void Board::ep()
 	board.move("a3a4");
 	board.move("d5d4");
 	board.move("e2e4");
-	old = board.get_piece(27);
+	orig = board.get_piece(27);
 	capt = board.get_piece(28);
 	assert(board.move("d4e3"));
 	assert(board.get_piece(28) == eng::BoardBase::EMPTY);
 	assert(board.get_piece(27) == eng::BoardBase::EMPTY);
-	assert(board.get_piece(20) == old);
+	assert(board.get_piece(20) == orig);
 
 	board.take_back();
 	assert(board.get_piece(28) == capt);
-	assert(board.get_piece(27) == old);
+	assert(board.get_piece(27) == orig);
 	assert(board.get_piece(20) == eng::BoardBase::EMPTY);
 
 	board.take_back();
@@ -85,7 +85,7 @@ void Board::ep()
 	assert(board.get_piece(12) == capt);
 
 	board.take_back();
-	assert(board.get_piece(35) == old);
+	assert(board.get_piece(35) == orig);
 
 	board.set_fen_pos("8/8/8/3pP3/8/8/8/8 w - d6 0 0");
 	assert(board.move("e5d6"));
@@ -156,6 +156,66 @@ void Board::ep()
 	assert(board.move("g2g4"));
 	assert(board.move("h4g3"));
 	assert(board.get_piece(30) == eng::BoardBase::EMPTY);
+
+	board.set_fen_pos("8/8/8/pP6/8/8/8 w - a6 0 1");
+	assert(board.move("b5b6"));
+	board.take_back();
+	assert(board.move("b5a6"));
+	assert(board.get_piece(32) == eng::BoardBase::EMPTY);
+
+	board.set_fen_pos("8/8/4p3/2pP4/8/8/8/8 w - c6 0 1");
+	assert(board.move("d5c6"));
+	assert(board.get_piece(34) == eng::BoardBase::EMPTY);
+	board.take_back();
+	assert(board.move("d5e6"));
+
+	board.set_fen_pos("8/8/4p3/2pPp3/8/8/8/8 w - c6 0 1");
+	assert(board.move("d5c6"));
+	assert(board.get_piece(34) == eng::BoardBase::EMPTY);
+	board.take_back();
+	assert(board.move("d5e6"));
+	assert(board.get_piece(36) == eng::BoardBase::PAWN);
+
+	board.set_fen_pos("8/2p5/4p3/3Pp3/8/8/8/8 b - - 0 1");
+	assert(board.move("c7c5"));
+	assert(board.move("d5c6"));
+	assert(board.get_piece(34) == eng::BoardBase::EMPTY);
+	board.take_back();
+	assert(board.move("d5d6"));
+	board.take_back();
+	assert(board.move("d5e6"));
+	board.take_back();
+
+	board.set_fen_pos("8/8/8/8/5p1k/8/4P1P1/8 w - - 0 1");
+	assert(board.move("e2e4"));
+	assert(board.move("f4e3"));
+	assert(board.get_piece(28) == eng::BoardBase::EMPTY);
+	board.take_back();
+	assert(board.move("f4f3"));
+
+	board.set_fen_pos("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w KQkq - 0 0");
+	assert(board.move("a5a4"));
+	assert(board.move("h5g5"));
+	assert(board.move("b4b1"));
+	assert(board.move("h4h5"));
+	assert(board.move("g2g4"));
+	orig = board.get_piece(29);
+	capt = board.get_piece(30);
+	assert(board.move("f4g3"));
+	assert(board.get_piece(30) == eng::BoardBase::EMPTY);
+	assert(board.get_piece(22) == orig);
+	assert(board.get_piece(29) == eng::BoardBase::EMPTY);
+	board.take_back();
+	assert(board.get_piece(30) == capt);
+	assert(board.get_piece(29) == orig);
+
+	board.set_fen_pos("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w KQkq - 0 0");
+	assert(board.move("b4b3"));
+	assert(board.move("c7c6"));
+	assert(board.move("a5a4"));
+	assert(board.move("c6c5"));
+	assert(!board.move("b5c6"));
+
 
 	g_log << "Board en passant test ok" << std::endl;
 }
@@ -249,6 +309,51 @@ void Board::test()
 	board.take_back();
 	assert(board.move("h4g5"));
 
+	board.set_fen_pos("8/8/pppppppp/PPPPPPPP/8/8/8/8 w - - 0 1");
+	assert(board.move("a5b6"));
+	board.take_back();
+	assert(board.move("b5a6"));
+	board.take_back();
+	assert(board.move("b5c6"));
+	board.take_back();
+	assert(board.move("c5b6"));
+	board.take_back();
+	assert(board.move("c5d6"));
+	board.take_back();
+	assert(board.move("d5c6"));
+	board.take_back();
+	assert(board.move("d5e6"));
+	board.take_back();
+	assert(board.move("e5d6"));
+	board.take_back();
+	assert(board.move("e5f6"));
+	board.take_back();
+	assert(board.move("f5e6"));
+	board.take_back();
+	assert(board.move("f5g6"));
+	board.take_back();
+	assert(board.move("g5f6"));
+	board.take_back();
+	assert(board.move("g5h6"));
+	board.take_back();
+	assert(board.move("h5g6"));
+
+	board.set_fen_pos("8/2p5/3p4/KP6/R1r2pPk/4P3/8/8 b - g3 0 3 ");
+	assert(board.move("f4g3"));
+
+	board.set_fen_pos("8/8/p7/1P6/8/8/8 w - - 0 1");
+	assert(board.move("b5a6"));
+	board.take_back();
+	assert(board.move("b5b6"));
+
+	board.set_fen_pos("8/8/pP6/8/8/8/8 w - a7 0 1");
+	assert(board.move("b6b7"));
+
+	board.set_fen_pos("8/8/8/8/5p1k/8/4P1P1/8 w - - 0 1");
+	assert(board.move("g2g3"));
+	assert(!board.move("f4f3"));
+
+	g_log << "Board test ok" << std::endl;
 }
 
 template<class BOARD_T, class MOVGEN_T>
@@ -317,6 +422,17 @@ void Generator::test()
 	assert(moves.size() == 14);
 	moves.clear();
 
+	board.set_fen_pos("8/8/pppppppp/PPPPPPPP/8/8/8/8 w - - 0 1");
+	gen.gen_moves(board, moves);
+	assert(moves.size() == 14);
+	moves.clear();
+
+	board.set_fen_pos("8/8/p7/1P6/8/8/8 w - - 0 1");
+	gen.gen_moves(board, moves);
+	assert(moves.size() == 2);
+	moves.clear();
+
+	g_log << "Generator test ok" << std::endl;
 }
 
 template<class BOARD_T, class MOVGEN_T>
@@ -324,7 +440,7 @@ void Generator::perft(uint32_t depth)
 {
 	BOARD_T board;
 	MOVGEN_T gen;
-	//board.set_fen_pos("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w KQkq - 0 0");
+//	board.set_fen_pos("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w KQkq - 0 0");
 	Generator::checks = 0;
 	Generator::mates = 0;
 	Generator::captures = 0;
@@ -519,6 +635,22 @@ void Generator::ep()
 	assert(board.move("h2h4"));
 	gen.gen_moves(board, moves);
 	assert(moves.size() == 2);
+	moves.clear();
+
+	board.set_fen_pos("8/8/4p3/2pPp3/8/8/8/8 w - c6 0 1");
+	gen.gen_moves(board, moves);
+	assert(moves.size() == 3);
+	moves.clear();
+
+	board.set_fen_pos("8/8/8/8/5p1k/8/4P1P1/8 w - - 0 1");
+	gen.gen_moves(board, moves);
+	assert(moves.size() == 4);
+	moves.clear();
+
+	board.set_fen_pos("8/8/8/8/5p1k/8/4P1P1/8 w - - 0 1");
+	assert(board.move("g2g3"));
+	gen.gen_moves(board, moves);
+	assert(moves.size() == 7);
 	moves.clear();
 
 	g_log << "Generator en passant test ok" << std::endl;

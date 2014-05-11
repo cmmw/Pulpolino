@@ -96,27 +96,31 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOAR
 				/*en passant*/
 				if (file != 0)
 				{
-					if (row == 4 && board.get_piece(i - 1) != BoardBase::EMPTY && board.get_color(i - 1) == BOARD_T::BLACK && c1 == BOARD_T::WHITE)
+					if (row == 4 && board.get_piece(i - 1) == BoardBase::PAWN && board.get_color(i - 1) == BOARD_T::BLACK && c1 == BOARD_T::WHITE)
 					{
-						moves.push_back(board.gen_mov(i, i + 8 - 1));
+						if (board.get_piece(i + 8 - 1) == BoardBase::EMPTY)
+							moves.push_back(board.gen_mov(i, i + 8 - 1));
 					}
 
-					if (row == 3 && board.get_piece(i - 1) != BoardBase::EMPTY && board.get_color(i - 1) == BOARD_T::WHITE && c1 == BOARD_T::BLACK)
+					if (row == 3 && board.get_piece(i - 1) == BoardBase::PAWN && board.get_color(i - 1) == BOARD_T::WHITE && c1 == BOARD_T::BLACK)
 					{
-						moves.push_back(board.gen_mov(i, i - 8 - 1));
+						if (board.get_piece(i - 8 - 1) == BoardBase::EMPTY)
+							moves.push_back(board.gen_mov(i, i - 8 - 1));
 					}
 				}
 
 				if (file != 7)
 				{
-					if (row == 4 && board.get_piece(i + 1) != BoardBase::EMPTY && board.get_color(i + 1) == BOARD_T::BLACK && c1 == BOARD_T::WHITE)
+					if (row == 4 && board.get_piece(i + 1) == BoardBase::PAWN && board.get_color(i + 1) == BOARD_T::BLACK && c1 == BOARD_T::WHITE)
 					{
-						moves.push_back(board.gen_mov(i, i + 8 + 1));
+						if (board.get_piece(i + 8 + 1) == BoardBase::EMPTY)
+							moves.push_back(board.gen_mov(i, i + 8 + 1));
 					}
 
-					if (row == 3 && board.get_piece(i + 1) != BoardBase::EMPTY && board.get_color(i + 1) == BOARD_T::WHITE && c1 == BOARD_T::BLACK)
+					if (row == 3 && board.get_piece(i + 1) == BoardBase::PAWN && board.get_color(i + 1) == BOARD_T::WHITE && c1 == BOARD_T::BLACK)
 					{
-						moves.push_back(board.gen_mov(i, i - 8 + 1));
+						if (board.get_piece(i - 8 + 1) == BoardBase::EMPTY)
+							moves.push_back(board.gen_mov(i, i - 8 + 1));
 					}
 				}
 
