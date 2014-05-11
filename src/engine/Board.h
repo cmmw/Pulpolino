@@ -84,7 +84,7 @@ public:
 	/*check if color c is checked in current position*/
 	bool in_check(Color_t c);
 	/*check if color c's square sq is attacked*/
-	bool is_attacked(Color_t c, uint8_t sq);
+	bool is_attacked(Color_t c, uint8_t sq, bool ex_pawn = false);
 
 	static std::string mov_to_str(const GenMove_t& mov);
 
@@ -109,6 +109,7 @@ private:
 	uint32_t _ply = 0;
 	uint32_t _mov = 0;
 	int32_t _ep = -1; /*fen string ep*/
+
 };
 
 } /* namespace eng */

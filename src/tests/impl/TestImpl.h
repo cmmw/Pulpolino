@@ -241,11 +241,19 @@ void Board::castle()
 	assert(!board.move("e8c8"));
 
 	board.set_fen_pos("r1b1kn1r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1");
-	board.print();
 	assert(board.move("e1g1"));
 	board.take_back();
 	assert(board.move("e1c1"));
 
+	board.set_fen_pos("r3k2r/P6p/8/8/8/8/p6P/R3K2R w KQkq - 0 1");
+	assert(board.move("e1g1"));
+	board.take_back();
+	assert(board.move("e1c1"));
+
+	board.set_fen_pos("r3k2r/P6p/8/8/8/8/p6P/R3K2R b KQkq - 0 1");
+	assert(board.move("e8g8"));
+	board.take_back();
+	assert(board.move("e8c8"));
 
 	g_log << "Board castle test ok" << std::endl;
 }
@@ -704,8 +712,8 @@ void Generator::perft(uint32_t depth)
 {
 	BOARD_T board;
 	MOVGEN_T gen;
-//	board.set_fen_pos("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w KQkq - 0 0");
-	board.set_fen_pos("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
+	board.set_fen_pos("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w KQkq - 0 0");
+//	board.set_fen_pos("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
 	Generator::_checks = 0;
 	Generator::_mates = 0;
 	Generator::_captures = 0;

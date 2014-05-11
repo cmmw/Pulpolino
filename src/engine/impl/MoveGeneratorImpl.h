@@ -14,7 +14,8 @@ namespace eng
 {
 
 template<class BOARD_T>
-void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOARD_T::GenMove_t>& moves)
+void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board,
+		std::vector<typename BOARD_T::GenMove_t>& moves)
 {
 	typename BOARD_T::Piece_t piece;
 	typename BOARD_T::Color_t c1;
@@ -24,6 +25,90 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOAR
 	c2 = (c1 == BOARD_T::WHITE) ? BOARD_T::BLACK : BOARD_T::WHITE;
 
 	/* TODO missing moves: promoting*/
+
+	/*castle white*/
+	if (c1 == BOARD_T::WHITE && board.get_piece(4) == BoardBase::KING && board.get_color(4) == BOARD_T::WHITE)
+	{
+		bool castle = true;
+
+		if (board.get_piece(0) == BoardBase::ROOK && board.get_color(0) == BOARD_T::WHITE)
+		{
+			for (int i = 1; i < 4; i++)
+			{
+				if (board.get_piece(i) != BoardBase::EMPTY)
+				{
+					castle = false;
+					break;
+				}
+			}
+
+			if (castle)
+			{
+				moves.push_back(board.gen_mov(4, 2));
+			}
+		}
+
+		castle = true;
+		if (board.get_piece(7) == BoardBase::ROOK
+				&& board.get_color(7) == BOARD_T::WHITE)
+		{
+			for (int i = 5; i < 7; i++)
+			{
+				if (board.get_piece(i) != BoardBase::EMPTY)
+				{
+					castle = false;
+					break;
+				}
+			}
+
+			if (castle)
+			{
+				moves.push_back(board.gen_mov(4, 6));
+			}
+		}
+	}
+
+	/*castle black*/
+	if (c1 == BOARD_T::BLACK && board.get_piece(60) == BoardBase::KING && board.get_color(60) == BOARD_T::BLACK)
+	{
+		bool castle = true;
+		if (board.get_piece(56) == BoardBase::ROOK && board.get_color(56) == BOARD_T::BLACK)
+		{
+			for (int i = 57; i < 60; i++)
+			{
+				if (board.get_piece(i) != BoardBase::EMPTY)
+				{
+					castle = false;
+					break;
+				}
+			}
+
+			if (castle)
+			{
+				moves.push_back(board.gen_mov(60, 58));
+			}
+		}
+
+		castle = true;
+		if (board.get_piece(63) == BoardBase::ROOK && board.get_color(63) == BOARD_T::BLACK)
+		{
+			for (int i = 61; i < 63; i++)
+			{
+				if (board.get_piece(i) != BoardBase::EMPTY)
+				{
+					castle = false;
+					break;
+				}
+			}
+
+			if (castle)
+			{
+				moves.push_back(board.gen_mov(60, 62));
+			}
+		}
+
+	}
+
 	for (int i = 0; i < 64; i++)
 	{
 		piece = board.get_piece(i);
@@ -55,88 +140,6 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOAR
 							break;
 						}
 					}
-				}
-
-				/*castle white*/
-				if (board.get_piece(4) == BoardBase::KING && board.get_color(4) == BOARD_T::WHITE)
-				{
-					bool castle = true;
-
-					if (board.get_piece(0) == BoardBase::ROOK && board.get_color(0) == BOARD_T::WHITE)
-					{
-						for (int i = 1; i < 4; i++)
-						{
-							if (board.get_piece(i) != BoardBase::EMPTY)
-							{
-								castle = false;
-								break;
-							}
-						}
-
-						if (castle)
-						{
-							moves.push_back(board.gen_mov(4, 2));
-						}
-					}
-
-					castle = true;
-					if (board.get_piece(7) == BoardBase::ROOK && board.get_color(7) == BOARD_T::WHITE)
-					{
-						for (int i = 5; i < 7; i++)
-						{
-							if (board.get_piece(i) != BoardBase::EMPTY)
-							{
-								castle = false;
-								break;
-							}
-						}
-
-						if (castle)
-						{
-							moves.push_back(board.gen_mov(4, 6));
-						}
-					}
-				}
-
-				/*castle black*/
-				if (board.get_piece(60) == BoardBase::KING && board.get_color(4) == BOARD_T::BLACK)
-				{
-					bool castle = true;
-					if (board.get_piece(56) == BoardBase::ROOK && board.get_color(0) == BOARD_T::BLACK)
-					{
-						for (int i = 57; i < 60; i++)
-						{
-							if (board.get_piece(i) != BoardBase::EMPTY)
-							{
-								castle = false;
-								break;
-							}
-						}
-
-						if (castle)
-						{
-							moves.push_back(board.gen_mov(60, 58));
-						}
-					}
-
-					castle = true;
-					if (board.get_piece(53) == BoardBase::ROOK && board.get_color(7) == BOARD_T::BLACK)
-					{
-						for (int i = 61; i < 63; i++)
-						{
-							if (board.get_piece(i) != BoardBase::EMPTY)
-							{
-								castle = false;
-								break;
-							}
-						}
-
-						if (castle)
-						{
-							moves.push_back(board.gen_mov(60, 62));
-						}
-					}
-
 				}
 
 			}
