@@ -14,6 +14,31 @@ uint32_t Generator::_checks = 0;
 uint32_t Generator::_mates = 0;
 uint32_t Generator::_captures = 0;
 
+template<class BOARD_T, class MOVGEN_T>
+void Generator::perft(uint32_t depth)
+{
+	BOARD_T board;
+	MOVGEN_T gen;
+//	board.set_fen_pos("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w KQkq - 0 0");
+//	board.set_fen_pos("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
+	board.set_fen_pos("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1");
+	Generator::_checks = 0;
+	Generator::_mates = 0;
+	Generator::_captures = 0;
+	std::vector<typename BOARD_T::GenMove_t> moves;
+	std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+	std::time_t t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+	g_log << "depth " << depth << ", started at " << ctime(&t) << std::endl;
+	uint64_t nodes = _perft(depth, board, gen);
+	std::chrono::steady_clock::duration duration = std::chrono::steady_clock::now() - start;
+	double seconds = static_cast<double>(duration.count()) * std::chrono::steady_clock::period::num / std::chrono::steady_clock::period::den;
+	g_log << "nodes: " << nodes << std::endl;
+	g_log << "captures: " << _captures << std::endl;
+	g_log << "checks: " << Generator::_checks << std::endl;
+	g_log << "mates: " << Generator::_mates << std::endl;
+	g_log << "time needed: " << seconds << " seconds, " << (seconds / 60) << " minutes" << std::endl << std::endl;
+}
+
 template<class BOARD_T>
 void Board::castle()
 {
@@ -705,30 +730,6 @@ void Generator::test()
 	moves.clear();
 
 	g_log << "Generator test ok" << std::endl;
-}
-
-template<class BOARD_T, class MOVGEN_T>
-void Generator::perft(uint32_t depth)
-{
-	BOARD_T board;
-	MOVGEN_T gen;
-	board.set_fen_pos("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w KQkq - 0 0");
-//	board.set_fen_pos("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
-	Generator::_checks = 0;
-	Generator::_mates = 0;
-	Generator::_captures = 0;
-	std::vector<typename BOARD_T::GenMove_t> moves;
-	std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-	std::time_t t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-	g_log << "depth " << depth << ", started at " << ctime(&t) << std::endl;
-	uint64_t nodes = _perft(depth, board, gen);
-	std::chrono::steady_clock::duration duration = std::chrono::steady_clock::now() - start;
-	double seconds = static_cast<double>(duration.count()) * std::chrono::steady_clock::period::num / std::chrono::steady_clock::period::den;
-	g_log << "nodes: " << nodes << std::endl;
-	g_log << "captures: " << _captures << std::endl;
-	g_log << "checks: " << Generator::_checks << std::endl;
-	g_log << "mates: " << Generator::_mates << std::endl;
-	g_log << "time needed: " << seconds << " seconds, " << (seconds / 60) << " minutes" << std::endl << std::endl;
 }
 
 template<class BOARD_T, class MOVGEN_T>

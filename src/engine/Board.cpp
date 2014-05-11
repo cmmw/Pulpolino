@@ -195,7 +195,7 @@ bool Board::move(uint8_t from, uint8_t to, Piece_t promote)
 				if (this->in_check(this->_color))
 					return false;
 
-				if (this->is_attacked(this->_color, 5) || this->is_attacked(this->_color, 6) || this->is_attacked(this->_color, 7))
+				if (this->is_attacked(this->_color, 5) || this->is_attacked(this->_color, 6))
 					return false;
 
 				moved = true;
@@ -213,7 +213,7 @@ bool Board::move(uint8_t from, uint8_t to, Piece_t promote)
 				if (this->in_check(this->_color))
 					return false;
 
-				if (this->is_attacked(this->_color, 3) || this->is_attacked(this->_color, 2) || this->is_attacked(this->_color, 1, true) || this->is_attacked(this->_color, 0))
+				if (this->is_attacked(this->_color, 3) || this->is_attacked(this->_color, 2))
 					return false;
 
 				moved = true;
@@ -233,7 +233,7 @@ bool Board::move(uint8_t from, uint8_t to, Piece_t promote)
 				if (this->in_check(this->_color))
 					return false;
 
-				if (this->is_attacked(this->_color, 61) || this->is_attacked(this->_color, 62) || this->is_attacked(this->_color, 63))
+				if (this->is_attacked(this->_color, 61) || this->is_attacked(this->_color, 62))
 					return false;
 
 				moved = true;
@@ -251,7 +251,7 @@ bool Board::move(uint8_t from, uint8_t to, Piece_t promote)
 				if (this->in_check(this->_color))
 					return false;
 
-				if (this->is_attacked(this->_color, 59) || this->is_attacked(this->_color, 58) || this->is_attacked(this->_color, 57, true) || this->is_attacked(this->_color, 56))
+				if (this->is_attacked(this->_color, 59) || this->is_attacked(this->_color, 58))
 					return false;
 
 				moved = true;
@@ -285,6 +285,22 @@ bool Board::move(uint8_t from, uint8_t to, Piece_t promote)
 		return false;
 	}
 
+	static int ep = 0;
+	static int castle = 0;
+	if (m.capture & CASTLE)
+	{
+		castle++;
+		g_log << "ep: " << ep << std::endl;
+		g_log << "castle: " << castle << std::endl;
+	}
+
+	if (m.capture & EP)
+	{
+		ep++;
+		g_log << "ep: " << ep << std::endl;
+		g_log << "castle: " << castle << std::endl;
+	}
+
 	this->_history.push(m);
 
 	this->_color = (this->_color == WHITE) ? BLACK : WHITE;
@@ -307,7 +323,7 @@ bool Board::in_check(Color_t c)
 	return false;
 }
 
-bool Board::is_attacked(Color_t c, uint8_t sq, bool ex_pawn)
+bool Board::is_attacked(Color_t c, uint8_t sq)
 {
 	for (int i = 0; i < 64; i++)
 	{
@@ -315,9 +331,6 @@ bool Board::is_attacked(Color_t c, uint8_t sq, bool ex_pawn)
 		{
 			if (this->get_piece(i) == PAWN)
 			{
-				if (ex_pawn)
-					continue;
-
 				uint32_t row = i % 8;
 				if (c == WHITE)
 				{
