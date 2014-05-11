@@ -36,6 +36,10 @@ public:
 
 	template<class BOARD_T>
 	static void checks();
+
+	template<class BOARD_T>
+	static void castle();
+
 };
 
 class Generator

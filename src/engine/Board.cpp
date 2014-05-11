@@ -117,7 +117,7 @@ bool Board::move(const GenMove_t& move)
 
 bool Board::move(uint8_t from, uint8_t to, Piece_t promote)
 {
-	/* TODO finish implementation (check for legal castle move. Promoting... etc)*/
+	/* TODO finish implementation (promoting... etc)*/
 	Move_t m;
 	Piece_t piece;
 	bool moved = false;
@@ -178,6 +178,78 @@ bool Board::move(uint8_t from, uint8_t to, Piece_t promote)
 			this->_board[d + from] = EMPTY;
 			this->_board[to] = this->_board[from];
 			this->_board[from] = EMPTY;
+		}
+	}
+
+	/*castle*/
+	if (piece == KING && !moved)
+	{
+		switch (from)
+		{
+		case 4:
+			if (to == 6)
+			{
+				if ((this->_board[7] & MOVED) || (this->_board[from] & MOVED))
+					return false;
+
+				if (this->is_attacked(this->_color, 4) || this->is_attacked(this->_color, 5) || this->is_attacked(this->_color, 6) || this->is_attacked(this->_color, 7))
+					return false;
+
+				moved = true;
+				m.capture = this->_board[7] | CASTLE;
+				this->_board[5] = this->_board[7] | MOVED;
+				this->_board[7] = EMPTY;
+				this->_board[to] = this->_board[from] | MOVED;
+				this->_board[from] = EMPTY;
+			}
+			else if (to == 2)
+			{
+				if ((this->_board[0] & MOVED) || (this->_board[from] & MOVED))
+					return false;
+
+				if (this->is_attacked(this->_color, 4) || this->is_attacked(this->_color, 3) || this->is_attacked(this->_color, 2) || this->is_attacked(this->_color, 1) || this->is_attacked(this->_color, 0))
+					return false;
+
+				moved = true;
+				m.capture = this->_board[0] | CASTLE;
+				this->_board[3] = this->_board[0] | MOVED;
+				this->_board[0] = EMPTY;
+				this->_board[to] = this->_board[from] | MOVED;
+				this->_board[from] = EMPTY;
+			}
+			break;
+		case 60:
+			if (to == 62)
+			{
+				if ((this->_board[63] & MOVED) || (this->_board[from] & MOVED))
+					return false;
+
+				if (this->is_attacked(this->_color, 60) || this->is_attacked(this->_color, 61) || this->is_attacked(this->_color, 62) || this->is_attacked(this->_color, 63))
+					return false;
+
+				moved = true;
+				m.capture = this->_board[63] | CASTLE;
+				this->_board[61] = this->_board[63] | MOVED;
+				this->_board[63] = EMPTY;
+				this->_board[to] = this->_board[from] | MOVED;
+				this->_board[from] = EMPTY;
+			}
+			else if (to == 58)
+			{
+				if ((this->_board[56] & MOVED) || (this->_board[from] & MOVED))
+					return false;
+
+				if (this->is_attacked(this->_color, 60) || this->is_attacked(this->_color, 59) || this->is_attacked(this->_color, 58) || this->is_attacked(this->_color, 57) || this->is_attacked(this->_color, 56))
+					return false;
+
+				moved = true;
+				m.capture = this->_board[56] | CASTLE;
+				this->_board[59] = this->_board[56] | MOVED;
+				this->_board[56] = EMPTY;
+				this->_board[to] = this->_board[from] | MOVED;
+				this->_board[from] = EMPTY;
+			}
+			break;
 		}
 	}
 
@@ -289,6 +361,39 @@ bool Board::take_back()
 			this->_board[m.from - 1] = m.capture & ~EP;
 		}
 		this->_board[m.to] = EMPTY;
+	}
+	else if (m.capture & CASTLE)
+	{
+		this->_board[m.to] = EMPTY;
+		switch (m.from)
+		{
+		case 4:
+			this->_board[4] = KING | WHITE;
+			if (m.to == 6)
+			{
+				this->_board[7] = ROOK | WHITE;
+				this->_board[5] = EMPTY;
+			}
+			else
+			{
+				this->_board[0] = ROOK | WHITE;
+				this->_board[3] = EMPTY;
+			}
+			break;
+		case 60:
+			this->_board[60] = KING | BLACK;
+			if (m.to == 62)
+			{
+				this->_board[63] = ROOK | BLACK;
+				this->_board[61] = EMPTY;
+			}
+			else
+			{
+				this->_board[56] = ROOK | BLACK;
+				this->_board[59] = EMPTY;
+			}
+			break;
+		}
 	}
 	else
 	{

@@ -15,6 +15,242 @@ uint32_t Generator::_mates = 0;
 uint32_t Generator::_captures = 0;
 
 template<class BOARD_T>
+void Board::castle()
+{
+	BOARD_T board;
+
+	board.move("a2a4");
+	board.move("a7a5");
+	board.move("b2b4");
+	board.move("b7b5");
+	board.move("c2c4");
+	board.move("c7c5");
+	board.move("d2d4");
+	board.move("d7d5");
+	board.move("e2e4");
+	board.move("e7e5");
+	board.move("f2f4");
+	board.move("f7f5");
+	board.move("g2g4");
+	board.move("g7g5");
+	board.move("h2h4");
+	board.move("h7h5");
+
+	board.move("b1a3");
+	board.move("b8a6");
+
+	board.move("c1b2");
+	board.move("c8b7");
+
+	board.move("d1d2");
+	board.move("d8d7");
+
+	board.move("f1g2");
+	board.move("f8g7");
+
+	board.move("g1h3");
+	board.move("g8h6");
+
+	assert(board.move("e1g1"));
+	assert(board.get_piece(4) == eng::BoardBase::EMPTY);
+	assert(board.get_piece(5) == eng::BoardBase::ROOK);
+	assert(board.get_piece(6) == eng::BoardBase::KING);
+	assert(board.get_piece(7) == eng::BoardBase::EMPTY);
+
+	board.take_back();
+	assert(board.get_piece(4) == eng::BoardBase::KING);
+	assert(board.get_piece(5) == eng::BoardBase::EMPTY);
+	assert(board.get_piece(6) == eng::BoardBase::EMPTY);
+	assert(board.get_piece(7) == eng::BoardBase::ROOK);
+
+	assert(board.move("e1c1"));
+	assert(board.get_piece(4) == eng::BoardBase::EMPTY);
+	assert(board.get_piece(3) == eng::BoardBase::ROOK);
+	assert(board.get_piece(2) == eng::BoardBase::KING);
+	assert(board.get_piece(1) == eng::BoardBase::EMPTY);
+	assert(board.get_piece(0) == eng::BoardBase::EMPTY);
+
+	board.take_back();
+	assert(board.get_piece(4) == eng::BoardBase::KING);
+	assert(board.get_piece(3) == eng::BoardBase::EMPTY);
+	assert(board.get_piece(2) == eng::BoardBase::EMPTY);
+	assert(board.get_piece(1) == eng::BoardBase::EMPTY);
+	assert(board.get_piece(0) == eng::BoardBase::ROOK);
+
+	/*move white h1 rook*/
+	board.move("h1h2");
+	board.move("h6g8");
+	board.move("h2h1");
+	board.move("g8h6");
+	assert(!board.move("e1g1"));
+	assert(board.move("e1c1"));
+
+	board.take_back();
+	board.take_back();
+	board.take_back();
+	board.take_back();
+	board.take_back();
+
+	/*move white a1 rook*/
+	board.move("a1a2");
+	board.move("h6g8");
+	board.move("a2a1");
+	board.move("g8h6");
+	assert(!board.move("e1c1"));
+	assert(board.move("e1g1"));
+
+	board.take_back();
+	board.take_back();
+	board.take_back();
+	board.take_back();
+	board.take_back();
+
+	/*move white king*/
+	board.move("e1e2");
+	board.move("h6g8");
+	board.move("e2e1");
+	board.move("g8h6");
+	assert(!board.move("e1g1"));
+	assert(!board.move("e1c1"));
+
+	assert(board.move("e1e2"));
+
+	/*move black h8 rook*/
+	board.move("h8h7");
+	board.move("h3g1");
+	board.move("h7h8");
+	board.move("g1h3");
+	assert(!board.move("e8g8"));
+	assert(board.move("e8c8"));
+
+	board.take_back();
+	board.take_back();
+	board.take_back();
+	board.take_back();
+	board.take_back();
+
+	/*move black a8 rook*/
+	board.move("a8a7");
+	board.move("h3g1");
+	board.move("a7a8");
+	board.move("g1h3");
+	assert(!board.move("e8c8"));
+	assert(board.move("e8g8"));
+
+	board.take_back();
+	board.take_back();
+	board.take_back();
+	board.take_back();
+	board.take_back();
+
+	/*move black king*/
+	board.move("e8e7");
+	board.move("h3g1");
+	board.move("e7e8");
+	board.move("g1h3");
+	assert(!board.move("e8g8"));
+	assert(!board.move("e8c8"));
+
+	/*test fen string for white to castle*/
+	board.set_fen_pos("r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1");
+	assert(board.move("e1c1"));
+	board.take_back();
+	assert(board.move("e1g1"));
+
+	board.set_fen_pos("r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w Qkq - 0 1");
+	assert(board.move("e1c1"));
+	board.take_back();
+	assert(!board.move("e1g1"));
+
+	board.set_fen_pos("r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w Kkq - 0 1");
+	assert(board.move("e1g1"));
+	board.take_back();
+	assert(!board.move("e1c1"));
+
+	board.set_fen_pos("r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w kq - 0 1");
+	assert(!board.move("e1g1"));
+	assert(!board.move("e1c1"));
+
+	/*test fen string for black to castle*/
+	board.set_fen_pos("r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R b KQkq - 0 1");
+	assert(board.move("e8c8"));
+	board.take_back();
+	assert(board.move("e8g8"));
+
+	board.set_fen_pos("r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R b KQq - 0 1");
+	assert(board.move("e8c8"));
+	board.take_back();
+	assert(!board.move("e8g8"));
+
+	board.set_fen_pos("r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R b QKk - 0 1");
+	assert(board.move("e8g8"));
+	board.take_back();
+	assert(!board.move("e8c8"));
+
+	board.set_fen_pos("r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R b - - 0 1");
+	assert(!board.move("e8g8"));
+	assert(!board.move("e8c8"));
+
+	/*attacked fields/pieces white/black*/
+	board.set_fen_pos("r3k2r/pppppppp/8/4b3/8/8/P1PPPPPP/R3K2R w KQkq - 0 1");
+	assert(!board.move("e1c1"));
+	assert(board.move("e1g1"));
+
+	board.set_fen_pos("r3k2r/p1pppppp/8/8/4B3/8/PPPPPPPP/R3K2R b KQkq - 0 1");
+	assert(!board.move("e8c8"));
+	assert(board.move("e8g8"));
+
+	board.set_fen_pos("r3k2r/pppppppp/8/8/4b3/8/PP1PPPPP/R3K2R w KQkq - 0 1");
+	assert(!board.move("e1c1"));
+	assert(board.move("e1g1"));
+
+	board.set_fen_pos("r3k2r/pp1ppppp/8/4B3/8/8/PPPPPPPP/R3K2R b KQkq - 0 1");
+	assert(!board.move("e8c8"));
+	assert(board.move("e8g8"));
+
+	board.set_fen_pos("r3k2r/pppppppp/8/8/4b3/8/PPPPPP1P/R3K2R w KQkq - 0 1");
+	assert(!board.move("e1g1"));
+	assert(board.move("e1c1"));
+
+	board.set_fen_pos("r3k2r/pppppp1p/8/4B3/8/8/PPPPPPPP/R3K2R b KQkq - 0 1");
+	assert(!board.move("e8g8"));
+	assert(board.move("e8c8"));
+
+	board.set_fen_pos("r3k2r/pppppppp/8/8/3b4/8/PPPPP1PP/R3K2R w KQkq - 0 1");
+	assert(!board.move("e1g1"));
+	assert(board.move("e1c1"));
+
+	board.set_fen_pos("r3k2r/ppppp1pp/8/3B4/8/8/PPPPPPPP/R3K2R b KQkq - 0 1");
+	assert(!board.move("e8g8"));
+	assert(board.move("e8c8"));
+
+	board.set_fen_pos("r3k2r/pppppppp/8/4q3/8/8/PPPP1PPP/R3K2R w KQkq - 0 1");
+	assert(!board.move("e1g1"));
+	assert(!board.move("e1c1"));
+
+	board.set_fen_pos("r3k2r/pppp1ppp/8/8/4Q3/8/PPPPPPPP/R3K2R b KQkq - 0 1");
+	assert(!board.move("e8g8"));
+	assert(!board.move("e8c8"));
+
+	board.set_fen_pos("r3k2r/pppppppp/8/8/8/8/PPPPpPPP/R3K2R w KQkq - 0 1");
+	assert(!board.move("e1g1"));
+	assert(!board.move("e1c1"));
+
+	board.set_fen_pos("r3k2r/ppppPppp/8/8/8/8/PPPPPPPP/R3K2R b KQkq - 0 1");
+	assert(!board.move("e8g8"));
+	assert(!board.move("e8c8"));
+
+	board.set_fen_pos("r1b1kn1r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1");
+	board.print();
+	assert(board.move("e1g1"));
+	board.take_back();
+	assert(board.move("e1c1"));
+
+
+	g_log << "Board castle test ok" << std::endl;
+}
+
+template<class BOARD_T>
 void Board::ep()
 {
 	BOARD_T board;
@@ -469,6 +705,8 @@ void Generator::perft(uint32_t depth)
 	BOARD_T board;
 	MOVGEN_T gen;
 //	board.set_fen_pos("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w KQkq - 0 0");
+	board.set_fen_pos("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
+	return;
 	Generator::_checks = 0;
 	Generator::_mates = 0;
 	Generator::_captures = 0;
