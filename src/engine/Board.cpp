@@ -137,15 +137,20 @@ bool Board::move(uint8_t from, uint8_t to, Piece_t promote)
 		uint8_t row_fr = from >> 3; /*divison by 8*/
 		uint8_t row_to = to >> 3;
 		d = to - from; /*points to the captured pawn*/
-		if (row_fr == 4 && this->_color == WHITE && row_to == 5)
+		if (row_fr == 4 && this->_color == WHITE && row_to == 5 && d % 8 != 0)
 		{
 			moved = true;
 			d = d - 8;
 		}
-		else if (row_fr == 3 && this->_color == BLACK && row_to == 2)
+		else if (row_fr == 3 && this->_color == BLACK && row_to == 2 && d % 8 != 0)
 		{
 			moved = true;
 			d = d + 8;
+		}
+
+		if ((this->_board[from + d] & PIECE) == EMPTY || (this->_board[from + d] & COLOR) == this->_color)
+		{
+			moved = false;
 		}
 
 		if (moved)
@@ -193,7 +198,9 @@ bool Board::move(uint8_t from, uint8_t to, Piece_t promote)
 		return false;
 	}
 
+
 	this->_history.push(m);
+
 	this->_color = (this->_color == WHITE) ? BLACK : WHITE;
 	this->_ply++;
 	if (this->_color == WHITE)
@@ -364,7 +371,7 @@ void Board::set_fen_pos(const char* fen)
 			break;
 
 		default:
-			file = fen[i] - '1';
+			file += fen[i] - '1';
 			break;
 
 		}

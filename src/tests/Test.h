@@ -31,6 +31,9 @@ public:
 	template<class BOARD_T>
 	static void ep();
 
+	template<class BOARD_T>
+	static void test();
+
 };
 
 class Generator
@@ -43,12 +46,19 @@ public:
 	template<class BOARD_T, class MOVGEN_T>
 	static void ep();
 
+	template<class BOARD_T, class MOVGEN_T>
+	static void test();
+
 private:
 	static uint32_t checks;
 	static uint32_t mates;
+	static uint32_t captures;
 
 	template<class BOARD_T, class MOVGEN_T>
 	static uint64_t _perft(uint32_t depth, BOARD_T& board, MOVGEN_T& gen);
+
+	template<class BOARD_T>
+	static uint32_t count_pieces(BOARD_T& board);
 
 };
 
