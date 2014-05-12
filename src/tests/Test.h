@@ -58,6 +58,9 @@ public:
 	template<class BOARD_T, class MOVGEN_T>
 	static void checks();
 
+	template<class BOARD_T, class MOVGEN_T>
+	static void calc();
+
 private:
 	static uint32_t _checks;
 	static uint32_t _mates;

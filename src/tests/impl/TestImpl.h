@@ -36,6 +36,7 @@ void Generator::perft(uint32_t depth)
 	g_log << "checks: " << Generator::_checks << std::endl;
 	g_log << "mates: " << Generator::_mates << std::endl;
 	g_log << "time needed: " << seconds << " seconds, " << (seconds / 60) << " minutes" << std::endl << std::endl;
+
 }
 
 template<class BOARD_T>
@@ -733,7 +734,6 @@ void Generator::test()
 	gen.gen_moves(board, moves);
 	assert(moves.size() == 2);
 	moves.clear();
-
 	g_log << "Generator test ok" << std::endl;
 }
 
@@ -970,6 +970,75 @@ bool Generator::is_mate(BOARD_T& board, MOVGEN_T& gen)
 		}
 	}
 	return mate;
+}
+
+template<class BOARD_T, class MOVGEN_T>
+void Generator::calc()
+{
+	std::vector<typename BOARD_T::GenMove_t> moves;
+	BOARD_T board;
+	MOVGEN_T gen;
+
+	g_log << "Calculating some test positions..." << std::endl;
+	uint64_t nodes;
+	moves.clear();
+	board.set_fen_pos("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
+	Generator::_checks = 0;
+	Generator::_mates = 0;
+	Generator::_captures = 0;
+	nodes = _perft(4, board, gen);
+	assert(nodes == 422333);
+	assert(Generator::_checks == 15492);
+	assert(Generator::_mates == 5);
+	assert(Generator::_captures == 131393);
+	g_log << "1 ok" << std::endl;
+
+	moves.clear();
+	board.set_fen_pos("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1");
+	Generator::_checks = 0;
+	Generator::_mates = 0;
+	Generator::_captures = 0;
+	nodes = _perft(4, board, gen);
+	assert(nodes == 4085603);
+	assert(Generator::_checks == 25523);
+	assert(Generator::_mates == 43);
+	assert(Generator::_captures == 757163);
+	g_log << "2 ok" << std::endl;
+
+	moves.clear();
+	board.set_fen_pos("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1");
+	Generator::_checks = 0;
+	Generator::_mates = 0;
+	Generator::_captures = 0;
+	nodes = _perft(4, board, gen);
+	assert(nodes == 43238);
+	assert(Generator::_checks == 1680);
+	assert(Generator::_mates == 17);
+	assert(Generator::_captures == 3348);
+	g_log << "3 ok" << std::endl;
+
+	moves.clear();
+	board.set_fen_pos("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1");
+	Generator::_checks = 0;
+	Generator::_mates = 0;
+	Generator::_captures = 0;
+	nodes = _perft(5, board, gen);
+	assert(nodes == 674624);
+	assert(Generator::_checks == 52950);
+	assert(Generator::_mates == 0);
+	assert(Generator::_captures == 52051);
+	g_log << "4 ok" << std::endl;
+
+	moves.clear();
+	board.set_fen_pos("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10");
+	Generator::_checks = 0;
+	Generator::_mates = 0;
+	Generator::_captures = 0;
+	nodes = _perft(4, board, gen);
+	assert(nodes == 3894594);
+	g_log << "5 ok" << std::endl;
+
+	g_log << "Calculations done" << std::endl;
 }
 
 } /* namespace eng */
