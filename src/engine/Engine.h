@@ -55,7 +55,9 @@ private:
 
 	void _run();
 	int32_t _think();
+	int32_t _root_search(uint32_t);
 	int32_t _search(uint32_t depth);
+
 
 	typename BOARD_T::GenMove_t _bestmove;
 

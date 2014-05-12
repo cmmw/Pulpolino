@@ -69,10 +69,10 @@ void Engine<BOARD_T, MOVGEN_T, EVAL_T>::_run()
 template<class BOARD_T, class MOVGEN_T, class EVAL_T>
 int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_think()
 {
+	/* TODO call search in a iterative deepening manner (?)*/
 	int32_t val;
 	this->_stop.store(false);
-	/* TODO call search in a iterative deepening manner (?)*/
-	val = this->_search(this->_depth);
+	val = this->_root_search(this->_depth);
 	this->_board.move(this->_bestmove);
 	g_log << "bestmove " << BOARD_T::mov_to_str(this->_bestmove) << std::endl;
 	this->_stop.store(false);
@@ -80,6 +80,32 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_think()
 }
 
 /*negamax*/
+
+template<class BOARD_T, class MOVGEN_T, class EVAL_T>
+int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_root_search(uint32_t depth)
+{
+	int32_t max = -99999999;
+	int32_t val = max;
+	this->_bestmove =
+	{	0,0};
+	std::vector<typename BOARD_T::GenMove_t> moves;
+	this->_movegen.gen_moves(this->_board, moves);
+	for (const auto &it : moves)
+	{
+		if (this->_board.move(it))
+		{
+			val = -this->_search(depth - 1);
+			this->_board.take_back();
+			if (val > max)
+			{
+				max = val;
+				this->_bestmove = it;
+			}
+		}
+	}
+	return max;
+}
+
 template<class BOARD_T, class MOVGEN_T, class EVAL_T>
 int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_search(uint32_t depth)
 {
@@ -89,9 +115,7 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_search(uint32_t depth)
 
 	if (depth == 0 || this->_stop.load())
 	{
-		if(this->_board.get_color() == BOARD_T::WHITE)
-			return eval(this->_board);
-		return -eval(this->_board);
+		return eval(this->_board);
 	}
 
 	std::vector<typename BOARD_T::GenMove_t> moves;
@@ -105,10 +129,6 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_search(uint32_t depth)
 			if (val > max)
 			{
 				max = val;
-				if(depth == this->_depth)
-				{
-					this->_bestmove = *it;		//only needed on the highest recursion level, before exiting the function
-				}
 			}
 		}
 	}
@@ -132,8 +152,8 @@ void Engine<BOARD_T, MOVGEN_T, EVAL_T>::position(const std::string& pos)
 		else if (!it->compare("fen"))
 		{
 			/* TODO finish implementation of uci command fen */
-			this->_board.set_fen_pos(pos.c_str()+13);
-			it+=6;
+			this->_board.set_fen_pos(pos.c_str() + 13);
+			it += 6;
 		}
 		else if (!it->compare("moves"))
 		{
@@ -143,7 +163,8 @@ void Engine<BOARD_T, MOVGEN_T, EVAL_T>::position(const std::string& pos)
 			}
 			this->_board.clear_history();
 			break;
-		} else
+		}
+		else
 		{
 			g_log << "info string unknown position string: " << *it << std::endl;
 		}

@@ -441,7 +441,33 @@ std::string Board::mov_to_str(const GenMove_t& mov)
 	char from_r = _digit[(mov.from >> 3)];
 	char to_f = _letter[(mov.to % 8)];
 	char to_r = _digit[(mov.to >> 3)];
-
+	char prom;
+	if (mov.promote != EMPTY)
+	{
+		switch (mov.promote)
+		{
+		case QUEEN:
+			prom = 'q';
+			break;
+		case KNIGHT:
+			prom = 'n';
+			break;
+		case BISHOP:
+			prom = 'b';
+			break;
+		case ROOK:
+			prom = 'r';
+			break;
+		case PAWN:
+		case KING:
+		case EMPTY:
+		case UNUSED:
+			g_log << "info string [FATAL] error in mov_to_str" << std::endl;
+			break;
+		}
+		return
+		{	from_f, from_r, to_f, to_r, prom};
+	}
 	return
 	{	from_f, from_r, to_f, to_r};
 
