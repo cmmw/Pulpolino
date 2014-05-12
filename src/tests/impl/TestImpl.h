@@ -735,6 +735,27 @@ void Generator::test()
 	gen.gen_moves(board, moves);
 	assert(moves.size() == 2);
 	moves.clear();
+
+	board.set_fen_pos("8/8/8/8/8/1P6/PP6/8 w - - 0 10");
+	gen.gen_moves(board, moves);
+	assert(moves.size() == 3);
+	moves.clear();
+
+	board.set_fen_pos("8/8/8/8/8/1p6/PPP5/8 b - - 0 10");
+	assert(board.move("c2b3"));
+	gen.gen_moves(board, moves);
+	assert(moves.size()  == 3);
+	moves.clear();
+
+	board.set_fen_pos("r1b1kbnr/1ppq1ppp/2np4/8/1p2P3/3Q1N2/PPPN1PPP/1RB2RK1 b kq - 0 9");
+	assert(board.move("b4b3"));
+	assert(board.move("c2b3"));
+	gen.gen_moves(board, moves);
+	for(auto it : moves)
+	{
+		g_log << board.mov_to_str(it) << std::endl;
+	}
+
 	g_log << "Generator test ok" << std::endl;
 }
 

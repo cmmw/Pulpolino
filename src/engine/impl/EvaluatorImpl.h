@@ -44,32 +44,25 @@ int32_t Evaluator<BOARD_T>::operator()(BOARD_T& board)
 		{
 			if (color == BOARD_T::WHITE)
 			{
-				val += pc_values[piece] * 3;
+				val += pc_values[piece] << 2;
 			}
 			else
 			{
-				val -= pc_values[piece] * 3;
+				val -= pc_values[piece] << 2;
 			}
 		}
 
-////		Attacks
-//		if (piece != BoardBase::EMPTY)
-//		{
-//			if (color == BOARD_T::WHITE)
-//			{
-//				if (board.is_attacked(BOARD_T::WHITE, i))
-//				{
-//					val -= pc_values[piece] * 2;
-//				}
-//			}
-//			else
-//			{
-//				if (board.is_attacked(BOARD_T::BLACK, i))
-//				{
-//					val += pc_values[piece] * 2;
-//				}
-//			}
-//		}
+//		Attacks
+		if (board.is_attacked(BOARD_T::WHITE, i))
+		{
+			val += sq_values[i];
+		}
+
+		if (board.is_attacked(BOARD_T::BLACK, i))
+		{
+			val -= sq_values[i];
+		}
+
 //
 ////		Position
 //		if (piece != BoardBase::EMPTY)

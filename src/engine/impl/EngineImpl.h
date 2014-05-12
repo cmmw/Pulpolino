@@ -115,7 +115,7 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_search(uint32_t depth, int32_t alpha
 			{
 				max = val;
 				if (max >= beta)
-					return max;
+					break;
 			}
 		}
 	}
@@ -123,8 +123,7 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_search(uint32_t depth, int32_t alpha
 	{
 		if (this->_board.in_check(this->_board.get_color()))
 		{
-			g_log << "found mate in depth" << this->_depth - depth << std::endl;
-			return -1000000000;
+			return -1000000000 + this->_depth - depth;
 		}
 		else
 		{
