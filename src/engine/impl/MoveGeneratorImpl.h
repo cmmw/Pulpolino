@@ -14,8 +14,7 @@ namespace eng
 {
 
 template<class BOARD_T>
-void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board,
-		std::vector<typename BOARD_T::GenMove_t>& moves)
+void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOARD_T::GenMove_t>& moves)
 {
 	typename BOARD_T::Piece_t piece;
 	typename BOARD_T::Color_t c1;

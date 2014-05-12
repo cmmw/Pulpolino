@@ -7,6 +7,7 @@
 
 #include <cassert>
 #include "../../engine/BoardBase.h"
+
 namespace test
 {
 
@@ -19,7 +20,7 @@ void Generator::perft(uint32_t depth)
 {
 	BOARD_T board;
 	MOVGEN_T gen;
-	board.set_fen_pos("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
+	//board.set_fen_pos("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
 
 	Generator::_checks = 0;
 	Generator::_mates = 0;

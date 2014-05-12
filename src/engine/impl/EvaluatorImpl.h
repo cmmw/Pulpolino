@@ -18,8 +18,8 @@ int Evaluator<BOARD_T>::sq_values[64] =
 				1, 1, 1, 1, 1, 1, 1, 1,
 				2, 2, 2, 2, 2, 2, 2, 2,
 				3, 3, 3, 3, 3, 3, 3, 3,
-				4, 4, 4, 25, 25, 4, 4, 4,
-				4, 4, 4, 25, 25, 4, 4, 4,
+				4, 4, 4, 5, 5, 4, 4, 4,
+				4, 4, 4, 5, 5, 4, 4, 4,
 				3, 3, 3, 3, 3, 3, 3, 3,
 				2, 2, 2, 2, 2, 2, 2, 2,
 				1, 1, 1, 1, 1, 1, 1, 1,
@@ -34,7 +34,7 @@ int32_t Evaluator<BOARD_T>::operator()(BOARD_T& board)
 {
 	int32_t val = 0;
 
-	for (int i = 0; i < 63; i++)
+	for (int i = 0; i < 64; i++)
 	{
 		typename BOARD_T::Piece_t piece = board.get_piece(i);
 		typename BOARD_T::Color_t color = board.get_color(i);
@@ -51,7 +51,7 @@ int32_t Evaluator<BOARD_T>::operator()(BOARD_T& board)
 				val -= pc_values[piece] * 3;
 			}
 		}
-//
+
 ////		Attacks
 //		if (piece != BoardBase::EMPTY)
 //		{
@@ -70,7 +70,7 @@ int32_t Evaluator<BOARD_T>::operator()(BOARD_T& board)
 //				}
 //			}
 //		}
-
+//
 ////		Position
 //		if (piece != BoardBase::EMPTY)
 //		{
@@ -90,7 +90,7 @@ int32_t Evaluator<BOARD_T>::operator()(BOARD_T& board)
 //				}
 //			}
 //		}
-
+//
 	}
 
 	if (board.get_color() == BOARD_T::BLACK)

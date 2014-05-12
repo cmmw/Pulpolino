@@ -17,36 +17,16 @@ namespace eng
 
 template<class BOARD_T, class MOVGEN_T, class EVAL_T>
 Engine<BOARD_T, MOVGEN_T, EVAL_T>::Engine() :
-		_stop(false), _quit(false), _depth(4)
+		_stop(false), _quit(false), _depth(5)
 {
 	this->_go.lock();
+	_input_th = std::thread(&Engine<BOARD_T, MOVGEN_T, EVAL_T>::uci_input_th, this);
 }
 
 template<class BOARD_T, class MOVGEN_T, class EVAL_T>
 void Engine<BOARD_T, MOVGEN_T, EVAL_T>::start()
 {
 	this->_run();
-}
-
-template<class BOARD_T, class MOVGEN_T, class EVAL_T>
-void Engine<BOARD_T, MOVGEN_T, EVAL_T>::go()
-{
-	this->_go.unlock();
-}
-
-template<class BOARD_T, class MOVGEN_T, class EVAL_T>
-void Engine<BOARD_T, MOVGEN_T, EVAL_T>::stop()
-{
-	this->_go.try_lock();
-	this->_stop.store(true);
-}
-
-template<class BOARD_T, class MOVGEN_T, class EVAL_T>
-void Engine<BOARD_T, MOVGEN_T, EVAL_T>::quit()
-{
-	this->_quit.store(true);
-	this->_stop.store(true);
-	this->_go.unlock();
 }
 
 template<class BOARD_T, class MOVGEN_T, class EVAL_T>
@@ -64,6 +44,7 @@ void Engine<BOARD_T, MOVGEN_T, EVAL_T>::_run()
 		g_log << "info string bestmove: " << BOARD_T::mov_to_str(this->_bestmove) << std::endl;
 		g_log << "info string value: " << val << std::endl;
 	}
+	this->_input_th.join();
 }
 
 template<class BOARD_T, class MOVGEN_T, class EVAL_T>
@@ -79,12 +60,13 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_think()
 	return val;
 }
 
-/*negamax*/
-
+/*negamax with alpha beta pruning*/
 template<class BOARD_T, class MOVGEN_T, class EVAL_T>
 int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_root_search(uint32_t depth)
 {
-	int32_t max = -99999999;
+	int32_t alpha = -999999999;
+	int32_t beta = 999999999;
+	int32_t max = alpha;
 	int32_t val = max;
 	this->_bestmove =
 	{	0,0};
@@ -94,7 +76,7 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_root_search(uint32_t depth)
 	{
 		if (this->_board.move(it))
 		{
-			val = -this->_search(depth - 1);
+			val = -this->_search(depth - 1, -beta, -max);
 			this->_board.take_back();
 			if (val > max)
 			{
@@ -107,11 +89,12 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_root_search(uint32_t depth)
 }
 
 template<class BOARD_T, class MOVGEN_T, class EVAL_T>
-int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_search(uint32_t depth)
+int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_search(uint32_t depth, int32_t alpha, int32_t beta)
 {
 	/*TODO finish negamax search*/
-	int32_t max = -99999999;
+	int32_t max = alpha;
 	int32_t val = max;
+	bool moved = false;
 
 	if (depth == 0 || this->_stop.load())
 	{
@@ -120,23 +103,39 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_search(uint32_t depth)
 
 	std::vector<typename BOARD_T::GenMove_t> moves;
 	this->_movegen.gen_moves(this->_board, moves);
-	for (typename std::vector<typename BOARD_T::GenMove_t>::iterator it = moves.begin(); it != moves.end(); it++)
+	for (const auto &it : moves)
 	{
-		if (this->_board.move(*it))
+
+		if (this->_board.move(it))
 		{
-			val = -this->_search(depth - 1);
+			val = -this->_search(depth - 1, -beta, -max);
 			this->_board.take_back();
+			moved = true;
 			if (val > max)
 			{
 				max = val;
+				if (max >= beta)
+					return max;
 			}
+		}
+	}
+	if (!moved)
+	{
+		if (this->_board.in_check(this->_board.get_color()))
+		{
+			g_log << "found mate in depth" << this->_depth - depth << std::endl;
+			return -1000000000;
+		}
+		else
+		{
+			return 0;
 		}
 	}
 	return max;
 }
 
 template<class BOARD_T, class MOVGEN_T, class EVAL_T>
-void Engine<BOARD_T, MOVGEN_T, EVAL_T>::position(const std::string& pos)
+void Engine<BOARD_T, MOVGEN_T, EVAL_T>::_position(const std::string& pos)
 {
 	std::vector<std::string> cmds;
 	std::istringstream iss(pos);
@@ -151,7 +150,6 @@ void Engine<BOARD_T, MOVGEN_T, EVAL_T>::position(const std::string& pos)
 		}
 		else if (!it->compare("fen"))
 		{
-			/* TODO finish implementation of uci command fen */
 			this->_board.set_fen_pos(pos.c_str() + 13);
 			it += 6;
 		}
@@ -172,9 +170,76 @@ void Engine<BOARD_T, MOVGEN_T, EVAL_T>::position(const std::string& pos)
 }
 
 template<class BOARD_T, class MOVGEN_T, class EVAL_T>
-void Engine<BOARD_T, MOVGEN_T, EVAL_T>::print_board()
+void Engine<BOARD_T, MOVGEN_T, EVAL_T>::uci_input_th()
 {
-	this->_board.print();
+	/*todo: finish implementation of uci commands*/
+	while (true)
+	{
+		std::string cmd;
+		std::getline(std::cin, cmd);
+
+		g_log << "info string proceeding: " << cmd << std::endl;
+
+		if (!cmd.compare("uci"))
+		{
+			g_log << "id name Pulpolino" << std::endl;
+			g_log << "id author Christian Wagner" << std::endl;
+			g_log << "uciok" << std::endl;
+		}
+		else if (!cmd.compare("debug"))
+		{
+
+		}
+		else if (!cmd.compare("isready"))
+		{
+			g_log << "readyok" << std::endl;
+		}
+		else if (!cmd.compare("setoption"))
+		{
+
+		}
+		else if (!cmd.compare("register"))
+		{
+
+		}
+		else if (!cmd.compare("ucinewgame"))
+		{
+
+		}
+		else if (!cmd.compare(0, 8, "position"))
+		{
+			_position(cmd);
+		}
+		else if (!cmd.compare(0, 2, "go"))
+		{
+			this->_go.unlock();
+		}
+		else if (!cmd.compare("stop"))
+		{
+			this->_go.try_lock();
+			this->_stop.store(true);
+		}
+		else if (!cmd.compare("ponderhit"))
+		{
+
+		}
+		else if (!cmd.compare("quit"))
+		{
+			this->_quit.store(true);
+			this->_stop.store(true);
+			this->_go.unlock();
+			break;
+		}
+		else if (!cmd.compare("print"))
+		{
+			this->_board.print();
+		}
+		else
+		{
+			g_log << "info string unknown cmd" << std::endl;
+		}
+
+	}
 }
 
 } /* namespace eng */
