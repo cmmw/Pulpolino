@@ -24,7 +24,7 @@ static eng::Engine<eng::Board, eng::MoveGenerator<eng::Board>, eng::Evaluator<en
 
 void run_tests()
 {
-	test::Generator::perft<eng::Board, eng::MoveGenerator<eng::Board>>(2);
+//	test::Generator::perft<eng::Board, eng::MoveGenerator<eng::Board>>(5);
 //	test::Board::test<eng::Board>();
 //	test::Board::ep<eng::Board>();
 //	test::Board::checks<eng::Board>();
@@ -37,11 +37,11 @@ void run_tests()
 /*TODO use concepts for template parameter*/
 int main()
 {
-	run_tests();
+//	run_tests();
 
-//	std::thread th(uci_input_th);
-//	engine.start();
-//	th.join();
+	std::thread th(uci_input_th);
+	engine.start();
+	th.join();
 	return 0;
 }
 

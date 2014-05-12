@@ -17,7 +17,7 @@ namespace eng
 
 template<class BOARD_T, class MOVGEN_T, class EVAL_T>
 Engine<BOARD_T, MOVGEN_T, EVAL_T>::Engine() :
-		_stop(false), _quit(false), _depth(3)
+		_stop(false), _quit(false), _depth(4)
 {
 	this->_go.lock();
 }

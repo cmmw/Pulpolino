@@ -24,8 +24,6 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board,
 	c1 = board.get_color();
 	c2 = (c1 == BOARD_T::WHITE) ? BOARD_T::BLACK : BOARD_T::WHITE;
 
-	/* TODO missing moves: promoting*/
-
 	/*castle white*/
 	if (c1 == BOARD_T::WHITE && board.get_piece(4) == BoardBase::KING && board.get_color(4) == BOARD_T::WHITE)
 	{
@@ -152,7 +150,15 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board,
 				step = (c1 == BOARD_T::WHITE) ? 1 : -1;
 				if (board.get_piece(i + (step * 8)) == BoardBase::EMPTY)
 				{
-					moves.push_back(board.gen_mov(i, i + (step * 8)));
+					if ((c1 == BOARD_T::WHITE && row == 6) || (c1 == BOARD_T::BLACK && row == 1))
+					{
+						for (int j = 1; j < 5; j++)
+							moves.push_back(board.gen_mov(i, i + (step * 8), static_cast<BoardBase::Piece_t>(j)));
+					}
+					else
+					{
+						moves.push_back(board.gen_mov(i, i + (step * 8)));
+					}
 					if (((c1 == BOARD_T::WHITE && row == 1) || (c1 == BOARD_T::BLACK && row == 6)) && board.get_piece(i + (2 * step * 8)) == BoardBase::EMPTY)
 					{
 						moves.push_back(board.gen_mov(i, i + (2 * step * 8)));
@@ -166,7 +172,15 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board,
 				{
 					if (board.get_color(n) == c2)
 					{
-						moves.push_back(board.gen_mov(i, n));
+						if ((c1 == BOARD_T::WHITE && row == 6) || (c1 == BOARD_T::BLACK && row == 1))
+						{
+							for (int j = 1; j < 5; j++)
+								moves.push_back(board.gen_mov(i, n, static_cast<BoardBase::Piece_t>(j)));
+						}
+						else
+						{
+							moves.push_back(board.gen_mov(i, n));
+						}
 					}
 				}
 
@@ -175,7 +189,15 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board,
 				{
 					if (board.get_color(n) == c2)
 					{
-						moves.push_back(board.gen_mov(i, n));
+						if ((c1 == BOARD_T::WHITE && row == 6) || (c1 == BOARD_T::BLACK && row == 1))
+						{
+							for (int j = 1; j < 5; j++)
+								moves.push_back(board.gen_mov(i, n, static_cast<BoardBase::Piece_t>(j)));
+						}
+						else
+						{
+							moves.push_back(board.gen_mov(i, n));
+						}
 					}
 				}
 

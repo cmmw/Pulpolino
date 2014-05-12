@@ -19,9 +19,8 @@ void Generator::perft(uint32_t depth)
 {
 	BOARD_T board;
 	MOVGEN_T gen;
-//	board.set_fen_pos("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w KQkq - 0 0");
-//	board.set_fen_pos("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
-	board.set_fen_pos("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1");
+	board.set_fen_pos("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
+
 	Generator::_checks = 0;
 	Generator::_mates = 0;
 	Generator::_captures = 0;
@@ -218,27 +217,33 @@ void Board::castle()
 
 	/*attacked fields/pieces white/black*/
 	board.set_fen_pos("r3k2r/pppppppp/8/4b3/8/8/P1PPPPPP/R3K2R w KQkq - 0 1");
-	assert(!board.move("e1c1"));
+	assert(board.move("e1c1"));
+	board.take_back();
 	assert(board.move("e1g1"));
 
 	board.set_fen_pos("r3k2r/p1pppppp/8/8/4B3/8/PPPPPPPP/R3K2R b KQkq - 0 1");
-	assert(!board.move("e8c8"));
+	assert(board.move("e8c8"));
+	board.take_back();
 	assert(board.move("e8g8"));
 
 	board.set_fen_pos("r3k2r/pppppppp/8/8/4b3/8/PP1PPPPP/R3K2R w KQkq - 0 1");
-	assert(!board.move("e1c1"));
+	assert(board.move("e1c1"));
+	board.take_back();
 	assert(board.move("e1g1"));
 
 	board.set_fen_pos("r3k2r/pp1ppppp/8/4B3/8/8/PPPPPPPP/R3K2R b KQkq - 0 1");
-	assert(!board.move("e8c8"));
+	assert(board.move("e8c8"));
+	board.take_back();
 	assert(board.move("e8g8"));
 
 	board.set_fen_pos("r3k2r/pppppppp/8/8/4b3/8/PPPPPP1P/R3K2R w KQkq - 0 1");
-	assert(!board.move("e1g1"));
+	assert(board.move("e1g1"));
+	board.take_back();
 	assert(board.move("e1c1"));
 
 	board.set_fen_pos("r3k2r/pppppp1p/8/4B3/8/8/PPPPPPPP/R3K2R b KQkq - 0 1");
-	assert(!board.move("e8g8"));
+	assert(board.move("e8g8"));
+	board.take_back();
 	assert(board.move("e8c8"));
 
 	board.set_fen_pos("r3k2r/pppppppp/8/8/3b4/8/PPPPP1PP/R3K2R w KQkq - 0 1");

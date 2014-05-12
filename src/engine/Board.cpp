@@ -117,7 +117,6 @@ bool Board::move(const GenMove_t& move)
 
 bool Board::move(uint8_t from, uint8_t to, Piece_t promote)
 {
-	/* TODO finish implementation (promoting... etc)*/
 	Move_t m;
 	Piece_t piece;
 	bool moved = false;
@@ -268,8 +267,16 @@ bool Board::move(uint8_t from, uint8_t to, Piece_t promote)
 	if (!moved)
 	{
 		/*make normal or capture move*/
-		this->_board[to] = m.orig | MOVED;
+		if (promote != EMPTY)
+		{
+			this->_board[to] = promote | MOVED | this->_color;
+		}
+		else
+		{
+			this->_board[to] = m.orig | MOVED;
+		}
 		this->_board[from] = EMPTY;
+
 	}
 
 	/*move is not allowed if we are in check after it, take it back*/
@@ -283,22 +290,6 @@ bool Board::move(uint8_t from, uint8_t to, Piece_t promote)
 		this->_board[to] = m.capture;
 		this->_board[from] = m.orig;
 		return false;
-	}
-
-	static int ep = 0;
-	static int castle = 0;
-	if (m.capture & CASTLE)
-	{
-		castle++;
-		g_log << "ep: " << ep << std::endl;
-		g_log << "castle: " << castle << std::endl;
-	}
-
-	if (m.capture & EP)
-	{
-		ep++;
-		g_log << "ep: " << ep << std::endl;
-		g_log << "castle: " << castle << std::endl;
 	}
 
 	this->_history.push(m);
