@@ -87,6 +87,7 @@ template<class BOARD_T, class MOVGEN_T, class EVAL_T>
 int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_search(uint32_t depth, int32_t alpha, int32_t beta)
 {
 	int32_t val;
+	bool moved = false;
 	std::vector<typename BOARD_T::GenMove_t> moves;
 
 	if (depth == 0 || this->_stop.load())
@@ -97,7 +98,7 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_search(uint32_t depth, int32_t alpha
 	{
 		if (!this->_board.move(it))
 			continue;
-
+		moved = true;
 		val = -this->_search(depth - 1, -beta, -alpha);
 		this->_board.take_back();
 		if (val >= beta)
@@ -105,6 +106,18 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_search(uint32_t depth, int32_t alpha
 		if (val > alpha)
 			alpha = val;
 	}
+
+	if(!moved)
+	{
+		if(this->_board.in_check(this->_board.get_color()))
+		{
+			return 250000-(this->_depth-depth);
+		} else
+		{
+			return 0;
+		}
+	}
+
 	return alpha;
 }
 
