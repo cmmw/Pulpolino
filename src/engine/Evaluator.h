@@ -26,8 +26,13 @@ public:
 
 
 private:
-	static int sq_values[64];
 	static int pc_values[6];
+	static int sq_pawns[64];
+	static int sq_knights[64];
+	static int sq_bishops[64];
+	static int sq_rooks[64];
+	static int sq_queen[64];
+	static int sq_king[64];
 };
 
 } /* namespace eng */

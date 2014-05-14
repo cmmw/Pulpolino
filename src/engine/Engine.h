@@ -38,7 +38,7 @@ private:
 
 	BOARD_T _board;
 	MOVGEN_T _movegen;
-	EVAL_T eval;
+	EVAL_T _eval;
 
 	void _run();
 	int32_t _think();

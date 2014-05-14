@@ -441,7 +441,7 @@ std::string Board::mov_to_str(const GenMove_t& mov)
 	char from_r = _digit[(mov.from >> 3)];
 	char to_f = _letter[(mov.to % 8)];
 	char to_r = _digit[(mov.to >> 3)];
-	char prom;
+	char prom = EMPTY;
 	if (mov.promote != EMPTY)
 	{
 		switch (mov.promote)

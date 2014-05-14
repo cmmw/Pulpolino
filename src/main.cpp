@@ -38,7 +38,6 @@ void run_tests()
 int main()
 {
 //	run_tests();
-
 	eng::Engine<eng::Board, eng::MoveGenerator<eng::Board>, eng::Evaluator<eng::Board>> engine;
 	engine.start();
 

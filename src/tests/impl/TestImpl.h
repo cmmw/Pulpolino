@@ -794,7 +794,7 @@ uint64_t Generator::_perft(uint32_t depth, BOARD_T& board, MOVGEN_T& gen)
 	gen.gen_moves(board, moves);
 	for (auto const &it : moves)
 	{
-		uint32_t pieces;
+		uint32_t pieces = 0;
 		if (depth == 1)
 			pieces = count_pieces(board);
 
