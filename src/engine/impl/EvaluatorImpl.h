@@ -16,12 +16,12 @@ template<class BOARD_T>
 int Evaluator<BOARD_T>::sq_values[64] =
 		{
 				1, 1, 1, 1, 1, 1, 1, 1,
-				2, 2, 2, 2, 2, 2, 2, 2,
-				3, 3, 3, 3, 3, 3, 3, 3,
-				4, 4, 4, 5, 5, 4, 4, 4,
-				4, 4, 4, 5, 5, 4, 4, 4,
-				3, 3, 3, 3, 3, 3, 3, 3,
-				2, 2, 2, 2, 2, 2, 2, 2,
+				1, 2, 2, 2, 2, 2, 2, 1,
+				2, 2, 3, 3, 3, 3, 2, 2,
+				3, 3, 4, 7, 7, 4, 3, 3,
+				3, 3, 4, 7, 7, 4, 3, 3,
+				2, 2, 3, 3, 3, 3, 2, 2,
+				1, 2, 2, 2, 2, 2, 2, 1,
 				1, 1, 1, 1, 1, 1, 1, 1,
 		};
 
@@ -40,54 +40,47 @@ int32_t Evaluator<BOARD_T>::operator()(BOARD_T& board)
 		typename BOARD_T::Color_t color = board.get_color(i);
 
 //		Material
-		if (piece != BoardBase::EMPTY)
-		{
-			if (color == BOARD_T::WHITE)
-			{
-				val += pc_values[piece] << 2;
-			}
-			else
-			{
-				val -= pc_values[piece] << 2;
-			}
-		}
-
-//		Attacks
-		if (board.is_attacked(BOARD_T::WHITE, i))
-		{
-			val += sq_values[i];
-		}
-
-		if (board.is_attacked(BOARD_T::BLACK, i))
-		{
-			val -= sq_values[i];
-		}
-
-//
-////		Position
 //		if (piece != BoardBase::EMPTY)
 //		{
 //
 //			if (color == BOARD_T::WHITE)
 //			{
-//				if (piece != BoardBase::KING)
-//				{
-//					val += sq_values[i];
-//				}
+//				val += pc_values[piece] << 2;
 //			}
 //			else
 //			{
-//				if (piece != BoardBase::KING)
-//				{
-//					val -= sq_values[i];
-//				}
+//				val -= pc_values[piece] << 2;
 //			}
 //		}
-//
+
+//		Position
+		if (piece != BoardBase::EMPTY)
+		{
+
+			if (color == BOARD_T::WHITE)
+			{
+				if (piece != BoardBase::KING)
+				{
+					val += sq_values[i];
+				}
+			}
+			else
+			{
+				if (piece != BoardBase::KING)
+				{
+					val -= sq_values[i];
+				}
+			}
+		}
+
 	}
 
 	if (board.get_color() == BOARD_T::BLACK)
-		return -val;
+		val = -val;
+
+//	board.print();
+//	g_log << "eval: " << val << std::endl;
+
 	return val;
 }
 

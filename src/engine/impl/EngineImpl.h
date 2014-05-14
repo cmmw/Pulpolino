@@ -17,7 +17,7 @@ namespace eng
 
 template<class BOARD_T, class MOVGEN_T, class EVAL_T>
 Engine<BOARD_T, MOVGEN_T, EVAL_T>::Engine() :
-		_stop(false), _quit(false), _depth(5)
+		_stop(false), _quit(false), _depth(1)
 {
 	this->_go.lock();
 	_input_th = std::thread(&Engine<BOARD_T, MOVGEN_T, EVAL_T>::uci_input_th, this);
@@ -64,36 +64,35 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_think()
 template<class BOARD_T, class MOVGEN_T, class EVAL_T>
 int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_root_search(uint32_t depth)
 {
-	int32_t alpha = -999999999;
-	int32_t beta = 999999999;
-	int32_t max = alpha;
-	int32_t val = max;
+	int32_t alpha = INT32_MIN;
+	int32_t beta = INT32_MAX;
+	int32_t val;
 	this->_bestmove =
 	{	0,0};
 	std::vector<typename BOARD_T::GenMove_t> moves;
 	this->_movegen.gen_moves(this->_board, moves);
 	for (const auto &it : moves)
 	{
-		if (this->_board.move(it))
+		if (!this->_board.move(it))
+			continue;
+		val = -this->_search(depth - 1, -beta, -alpha);
+		this->_board.take_back();
+		if (val >= beta)
+			return beta;
+
+		if (val > alpha)
 		{
-			val = -this->_search(depth - 1, -beta, -max);
-			this->_board.take_back();
-			if (val > max)
-			{
-				max = val;
-				this->_bestmove = it;
-			}
+			alpha = val;
+			this->_bestmove = it;
 		}
 	}
-	return max;
+	return alpha;
 }
 
 template<class BOARD_T, class MOVGEN_T, class EVAL_T>
 int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_search(uint32_t depth, int32_t alpha, int32_t beta)
 {
-	/*TODO finish negamax search*/
-	int32_t max = alpha;
-	int32_t val = max;
+	int32_t val;
 	bool moved = false;
 
 	if (depth == 0 || this->_stop.load())
@@ -105,32 +104,31 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_search(uint32_t depth, int32_t alpha
 	this->_movegen.gen_moves(this->_board, moves);
 	for (const auto &it : moves)
 	{
+		if (!this->_board.move(it))
+			continue;
 
-		if (this->_board.move(it))
-		{
-			val = -this->_search(depth - 1, -beta, -max);
-			this->_board.take_back();
-			moved = true;
-			if (val > max)
-			{
-				max = val;
-				if (max >= beta)
-					break;
-			}
-		}
+		val = -this->_search(depth - 1, -beta, -alpha);
+		this->_board.take_back();
+		moved = true;
+		if (val >= beta)
+			return beta;
+
+		if (val > alpha)
+			alpha = val;
+
 	}
 	if (!moved)
 	{
 		if (this->_board.in_check(this->_board.get_color()))
 		{
-			return -1000000000 + this->_depth - depth;
+			return -100000 + this->_depth - depth;
 		}
 		else
 		{
 			return 0;
 		}
 	}
-	return max;
+	return alpha;
 }
 
 template<class BOARD_T, class MOVGEN_T, class EVAL_T>
@@ -211,6 +209,11 @@ void Engine<BOARD_T, MOVGEN_T, EVAL_T>::uci_input_th()
 		}
 		else if (!cmd.compare(0, 2, "go"))
 		{
+			if (cmd.length() > 2 && cmd.substr(3).compare("depth"))
+			{
+				this->_depth = strtol(cmd.c_str() + 9, NULL, 10);
+				g_log << "info string set depth to " << this->_depth << std::endl;
+			}
 			this->_go.unlock();
 		}
 		else if (!cmd.compare("stop"))
