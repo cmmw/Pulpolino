@@ -107,12 +107,14 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_search(uint32_t depth, int32_t alpha
 			alpha = val;
 	}
 
-	if(!moved)
+	if (!moved)
 	{
-		if(this->_board.in_check(this->_board.get_color()))
+		if (this->_board.in_check(this->_board.get_color()))
 		{
-			return 250000-(this->_depth-depth);
-		} else
+			g_log << "info string found mate in #" << (this->_depth - depth) << std::endl;
+			return -5000 + (this->_depth - depth);
+		}
+		else
 		{
 			return 0;
 		}
