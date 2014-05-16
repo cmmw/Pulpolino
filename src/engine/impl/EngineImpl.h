@@ -9,6 +9,7 @@
 #include <iterator>
 #include <sstream>
 #include <vector>
+#include <chrono>
 #include "../Engine.h"
 #include "../../globals.h"
 
@@ -17,7 +18,7 @@ namespace eng
 
 template<class BOARD_T, class MOVGEN_T, class EVAL_T>
 Engine<BOARD_T, MOVGEN_T, EVAL_T>::Engine() :
-		_stop(false), _quit(false), _depth(3)
+		_stop(false), _quit(false)
 {
 	this->_go.lock();
 	_input_th = std::thread(&Engine<BOARD_T, MOVGEN_T, EVAL_T>::_uci_input_th, this);
@@ -32,6 +33,7 @@ void Engine<BOARD_T, MOVGEN_T, EVAL_T>::start()
 template<class BOARD_T, class MOVGEN_T, class EVAL_T>
 void Engine<BOARD_T, MOVGEN_T, EVAL_T>::_run()
 {
+	uint32_t i;
 	while (!_quit.load())
 	{
 		this->_go.lock();
@@ -41,8 +43,18 @@ void Engine<BOARD_T, MOVGEN_T, EVAL_T>::_run()
 		}
 		int32_t val;
 		val = this->_think();
-		g_log << "info string bestmove: " << BOARD_T::mov_to_str(this->_bestmove) << std::endl;
-		g_log << "info string value: " << val << std::endl;
+		g_log << "info string score: " << val << std::endl;
+		g_log << "info string pv:";
+		i = 0;
+		for (auto pv : this->_pv[0].moves())
+		{
+			if (i + 1 % 2 == 0)
+				g_log << " " << i + 1 << ".";
+			g_log << " " << this->_board.mov_to_str(pv);
+		}
+		if (this->_pv[0].mate())
+			g_log << "#";
+		g_log << std::endl;
 	}
 	this->_input_th.join();
 }
@@ -53,15 +65,36 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_think()
 	/* TODO call search in a iterative deepening manner (?)*/
 	int32_t val;
 	this->_stop.store(false);
+	this->_nodes = 0;
+
+	std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
 	val = this->_root_search(this->_depth);
-	this->_board.move(this->_bestmove);
-	g_log << "bestmove " << BOARD_T::mov_to_str(this->_bestmove) << std::endl;
-	g_log << "info string pv:";
-	for (auto it : this->_pv)
+	std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start);
+
+	/*Send some infos to the gui*/
+	g_log << "info depth " << this->_depth << " nodes " << this->_nodes << std::endl;
+	g_log << "info score ";
+	if (this->_pv[0].mate())
 	{
-		g_log << " " << this->_board.mov_to_str(it);
+		g_log << "mate ";
+		if (this->_pv[0].moves().size() % 2 == 0)
+			g_log << -(this->_pv[0].moves().size() / 2);
+		else
+			g_log << (this->_pv[0].moves().size() / 2);
+	}
+	else
+	{
+		g_log << "cp " << val;
+	}
+	g_log << " time " << ms.count() << " pv";
+	for (auto pv : this->_pv[0].moves())
+	{
+		g_log << " " << this->_board.mov_to_str(pv);
 	}
 	g_log << std::endl;
+
+	this->_board.move(this->_bestmove);
+	g_log << "bestmove " << BOARD_T::mov_to_str(this->_bestmove) << std::endl;
 
 	this->_stop.store(false);
 	return val;
@@ -71,61 +104,61 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_think()
 template<class BOARD_T, class MOVGEN_T, class EVAL_T>
 int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_root_search(uint32_t depth)
 {
-	std::vector<typename BOARD_T::GenMove_t> l_pv;
 	int32_t val, alpha = -250000, beta = 250000;
 	std::vector<typename BOARD_T::GenMove_t> moves;
-	this->_pv.clear();
 	this->_movegen.gen_moves(this->_board, moves);
 	for (const auto &it : moves)
 	{
 		if (!this->_board.move(it))
 			continue;
 
-		val = -this->_search(depth - 1, -beta, -alpha, l_pv);
+		val = -this->_search(depth - 1, -beta, -alpha);
 		this->_board.take_back();
 		if (val > alpha)
 		{
 			alpha = val;
 			this->_bestmove = it;
-			this->_pv.clear();
-			this->_pv.push_back(it);
-			for (auto v : l_pv)
-				this->_pv.push_back(v);
+			this->_pv[0].reset();
+			this->_pv[0].add_move(it);
+			this->_pv[0] << this->_pv[1];
 		}
 	}
 	return alpha;
 }
 
 template<class BOARD_T, class MOVGEN_T, class EVAL_T>
-int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_search(uint32_t depth, int32_t alpha, int32_t beta, std::vector<typename BOARD_T::GenMove_t>& pv)
+int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_search(uint32_t depth, int32_t alpha, int32_t beta)
 {
 	int32_t val;
-	std::vector<typename BOARD_T::GenMove_t> l_pv;
+	uint32_t pvidx = this->_depth - depth;
 	bool moved = false;
 	std::vector<typename BOARD_T::GenMove_t> moves;
 
 	if (depth == 0 || this->_stop.load())
+	{
+		this->_nodes++;
 		return this->_eval(this->_board);
+	}
 
+	this->_pv[pvidx].reset();
 	this->_movegen.gen_moves(this->_board, moves);
 	for (const auto &it : moves)
 	{
 		if (!this->_board.move(it))
 			continue;
 		moved = true;
-		val = -this->_search(depth - 1, -beta, -alpha, l_pv);
+		val = -this->_search(depth - 1, -beta, -alpha);
 		this->_board.take_back();
 		if (val >= beta)
 			return beta;
 		if (val > alpha)
 		{
 			alpha = val;
-			pv.clear();
-			pv.push_back(it);
-			for (auto v : l_pv)
-			{
-				pv.push_back(v);
-			}
+
+			/*update pv*/
+			this->_pv[pvidx].reset();
+			this->_pv[pvidx].add_move(it);
+			this->_pv[pvidx] << this->_pv[pvidx + 1];
 		}
 	}
 
@@ -133,10 +166,12 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_search(uint32_t depth, int32_t alpha
 	{
 		if (this->_board.in_check(this->_board.get_color()))
 		{
+			this->_pv[pvidx].mate(true);
 			return -25000 + (this->_depth - depth);
 		}
 		else
 		{
+			this->_pv[pvidx].stalemate(true);
 			return 0;
 		}
 	}
