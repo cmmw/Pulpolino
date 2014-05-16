@@ -43,12 +43,13 @@ private:
 	void _run();
 	int32_t _think();
 	int32_t _root_search(uint32_t);
-	int32_t _search(uint32_t depth, int32_t alpha, int32_t beta);
+	int32_t _search(uint32_t depth, int32_t alpha, int32_t beta, std::vector<typename BOARD_T::GenMove_t>& pv);
 	std::thread _input_th;
 
 	typename BOARD_T::GenMove_t _bestmove;
+	std::vector<typename BOARD_T::GenMove_t> _pv;
 
-	void uci_input_th();
+	void _uci_input_th();
 
 	/*call when uci command position is received, will set position on the board, argument = received string from gui (including "position")*/
 	void _position(const std::string& pos);

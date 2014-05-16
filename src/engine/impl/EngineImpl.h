@@ -17,10 +17,10 @@ namespace eng
 
 template<class BOARD_T, class MOVGEN_T, class EVAL_T>
 Engine<BOARD_T, MOVGEN_T, EVAL_T>::Engine() :
-		_stop(false), _quit(false), _depth(6)
+		_stop(false), _quit(false), _depth(3)
 {
 	this->_go.lock();
-	_input_th = std::thread(&Engine<BOARD_T, MOVGEN_T, EVAL_T>::uci_input_th, this);
+	_input_th = std::thread(&Engine<BOARD_T, MOVGEN_T, EVAL_T>::_uci_input_th, this);
 }
 
 template<class BOARD_T, class MOVGEN_T, class EVAL_T>
@@ -56,6 +56,13 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_think()
 	val = this->_root_search(this->_depth);
 	this->_board.move(this->_bestmove);
 	g_log << "bestmove " << BOARD_T::mov_to_str(this->_bestmove) << std::endl;
+	g_log << "info string pv:";
+	for (auto it : this->_pv)
+	{
+		g_log << " " << this->_board.mov_to_str(it);
+	}
+	g_log << std::endl;
+
 	this->_stop.store(false);
 	return val;
 }
@@ -64,29 +71,36 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_think()
 template<class BOARD_T, class MOVGEN_T, class EVAL_T>
 int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_root_search(uint32_t depth)
 {
+	std::vector<typename BOARD_T::GenMove_t> l_pv;
 	int32_t val, alpha = -250000, beta = 250000;
 	std::vector<typename BOARD_T::GenMove_t> moves;
+	this->_pv.clear();
 	this->_movegen.gen_moves(this->_board, moves);
 	for (const auto &it : moves)
 	{
 		if (!this->_board.move(it))
 			continue;
 
-		val = -this->_search(depth - 1, -beta, -alpha);
+		val = -this->_search(depth - 1, -beta, -alpha, l_pv);
 		this->_board.take_back();
 		if (val > alpha)
 		{
 			alpha = val;
 			this->_bestmove = it;
+			this->_pv.clear();
+			this->_pv.push_back(it);
+			for (auto v : l_pv)
+				this->_pv.push_back(v);
 		}
 	}
 	return alpha;
 }
 
 template<class BOARD_T, class MOVGEN_T, class EVAL_T>
-int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_search(uint32_t depth, int32_t alpha, int32_t beta)
+int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_search(uint32_t depth, int32_t alpha, int32_t beta, std::vector<typename BOARD_T::GenMove_t>& pv)
 {
 	int32_t val;
+	std::vector<typename BOARD_T::GenMove_t> l_pv;
 	bool moved = false;
 	std::vector<typename BOARD_T::GenMove_t> moves;
 
@@ -99,20 +113,27 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_search(uint32_t depth, int32_t alpha
 		if (!this->_board.move(it))
 			continue;
 		moved = true;
-		val = -this->_search(depth - 1, -beta, -alpha);
+		val = -this->_search(depth - 1, -beta, -alpha, l_pv);
 		this->_board.take_back();
 		if (val >= beta)
 			return beta;
 		if (val > alpha)
+		{
 			alpha = val;
+			pv.clear();
+			pv.push_back(it);
+			for (auto v : l_pv)
+			{
+				pv.push_back(v);
+			}
+		}
 	}
 
 	if (!moved)
 	{
 		if (this->_board.in_check(this->_board.get_color()))
 		{
-			g_log << "info string found mate in #" << (this->_depth - depth) << std::endl;
-			return -5000 + (this->_depth - depth);
+			return -25000 + (this->_depth - depth);
 		}
 		else
 		{
@@ -159,7 +180,7 @@ void Engine<BOARD_T, MOVGEN_T, EVAL_T>::_position(const std::string& pos)
 }
 
 template<class BOARD_T, class MOVGEN_T, class EVAL_T>
-void Engine<BOARD_T, MOVGEN_T, EVAL_T>::uci_input_th()
+void Engine<BOARD_T, MOVGEN_T, EVAL_T>::_uci_input_th()
 {
 	/*todo: finish implementation of uci commands*/
 	while (true)
