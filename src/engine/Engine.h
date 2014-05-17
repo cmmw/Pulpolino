@@ -8,6 +8,9 @@
 #ifndef ENGINE_H_
 #define ENGINE_H_
 
+#define MIN (-300000)
+#define MAX (300000)
+
 #include <mutex>
 #include <atomic>
 #include <array>
@@ -108,10 +111,11 @@ private:
 
 	int32_t _think();
 	int32_t _root_search(uint32_t);
-	int32_t _search(uint32_t depth, int32_t alpha, int32_t beta);
+	int32_t _search(uint32_t depth, int32_t alpha, int32_t beta, LineInfo& info);
 
 	typename BOARD_T::GenMove_t _bestmove;
-	std::array<LineInfo, 100> _pv;
+	LineInfo _info;
+
 	uint32_t _nodes = 0;
 
 };

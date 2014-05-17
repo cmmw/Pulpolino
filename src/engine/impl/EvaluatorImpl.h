@@ -155,9 +155,6 @@ int32_t Evaluator<BOARD_T>::operator()(BOARD_T& board)
 	if (board.get_color() == BOARD_T::BLACK)
 		val = -val;
 
-//	board.print();
-//	g_log << "eval: " << val << std::endl;
-
 	return val;
 }
 

@@ -46,13 +46,13 @@ void Engine<BOARD_T, MOVGEN_T, EVAL_T>::_run()
 		g_log << "info string score: " << val << std::endl;
 		g_log << "info string pv:";
 		i = 0;
-		for (auto pv : this->_pv[0].moves())
+		for (auto pv : this->_info.moves())
 		{
 			if (i + 1 % 2 == 0)
 				g_log << " " << i + 1 << ".";
 			g_log << " " << this->_board.mov_to_str(pv);
 		}
-		if (this->_pv[0].mate())
+		if (this->_info.mate())
 			g_log << "#";
 		g_log << std::endl;
 	}
@@ -74,20 +74,20 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_think()
 	/*Send some infos to the gui*/
 	g_log << "info depth " << this->_depth << " nodes " << this->_nodes << std::endl;
 	g_log << "info score ";
-	if (this->_pv[0].mate())
+	if (this->_info.mate())
 	{
 		g_log << "mate ";
-		if (this->_pv[0].moves().size() % 2 == 0)
-			g_log << -(this->_pv[0].moves().size() / 2);
+		if (this->_info.moves().size() % 2 == 0)
+			g_log << -(this->_info.moves().size() / 2);
 		else
-			g_log << (this->_pv[0].moves().size() / 2);
+			g_log << (this->_info.moves().size() / 2);
 	}
 	else
 	{
 		g_log << "cp " << val;
 	}
 	g_log << " time " << ms.count() << " pv";
-	for (auto pv : this->_pv[0].moves())
+	for (auto pv : this->_info.moves())
 	{
 		g_log << " " << this->_board.mov_to_str(pv);
 	}
@@ -104,35 +104,37 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_think()
 template<class BOARD_T, class MOVGEN_T, class EVAL_T>
 int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_root_search(uint32_t depth)
 {
-	int32_t val, alpha = -250000, beta = 250000;
+	int32_t val, alpha = MIN, beta = MAX;
 	std::vector<typename BOARD_T::GenMove_t> moves;
+	LineInfo info;
 	this->_movegen.gen_moves(this->_board, moves);
 	for (const auto &it : moves)
 	{
 		if (!this->_board.move(it))
 			continue;
 
-		val = -this->_search(depth - 1, -beta, -alpha);
+		val = -this->_search(depth - 1, -beta, -alpha, info);
 		this->_board.take_back();
 		if (val > alpha)
 		{
 			alpha = val;
 			this->_bestmove = it;
-			this->_pv[0].reset();
-			this->_pv[0].add_move(it);
-			this->_pv[0] << this->_pv[1];
+			/*update pv*/
+			this->_info.reset();
+			this->_info.add_move(it);
+			this->_info << info;
 		}
 	}
 	return alpha;
 }
 
 template<class BOARD_T, class MOVGEN_T, class EVAL_T>
-int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_search(uint32_t depth, int32_t alpha, int32_t beta)
+int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_search(uint32_t depth, int32_t alpha, int32_t beta, LineInfo& pinfo)
 {
 	int32_t val;
-	uint32_t pvidx = this->_depth - depth;
 	bool moved = false;
 	std::vector<typename BOARD_T::GenMove_t> moves;
+	LineInfo info;
 
 	if (depth == 0 || this->_stop.load())
 	{
@@ -140,14 +142,13 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_search(uint32_t depth, int32_t alpha
 		return this->_eval(this->_board);
 	}
 
-	this->_pv[pvidx].reset();
 	this->_movegen.gen_moves(this->_board, moves);
 	for (const auto &it : moves)
 	{
 		if (!this->_board.move(it))
 			continue;
 		moved = true;
-		val = -this->_search(depth - 1, -beta, -alpha);
+		val = -this->_search(depth - 1, -beta, -alpha, info);
 		this->_board.take_back();
 		if (val >= beta)
 			return beta;
@@ -156,9 +157,9 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_search(uint32_t depth, int32_t alpha
 			alpha = val;
 
 			/*update pv*/
-			this->_pv[pvidx].reset();
-			this->_pv[pvidx].add_move(it);
-			this->_pv[pvidx] << this->_pv[pvidx + 1];
+			pinfo.reset();
+			pinfo.add_move(it);
+			pinfo << info;
 		}
 	}
 
@@ -166,12 +167,12 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_search(uint32_t depth, int32_t alpha
 	{
 		if (this->_board.in_check(this->_board.get_color()))
 		{
-			this->_pv[pvidx].mate(true);
-			return -25000 + (this->_depth - depth);
+			pinfo.mate(true);
+			return MIN + (this->_depth - depth);
 		}
 		else
 		{
-			this->_pv[pvidx].stalemate(true);
+			pinfo.stalemate(true);
 			return 0;
 		}
 	}
@@ -257,7 +258,7 @@ void Engine<BOARD_T, MOVGEN_T, EVAL_T>::_uci_input_th()
 		}
 		else if (!cmd.compare(0, 2, "go"))
 		{
-			if (cmd.length() > 2 && cmd.substr(3).compare("depth"))
+			if (cmd.length() > 2 && !cmd.substr(3).compare(0,5,"depth"))
 			{
 				int32_t d = strtol(cmd.c_str() + 9, NULL, 10);
 				if (d > 0)
