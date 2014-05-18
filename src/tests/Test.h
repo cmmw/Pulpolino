@@ -79,6 +79,6 @@ private:
 
 } /* namespace eng */
 
-#include "impl/testImpl.h"
+#include "impl/TestImpl.h"
 
 #endif /* TESTS_H_ */
