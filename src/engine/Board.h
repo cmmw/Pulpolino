@@ -61,9 +61,14 @@ public:
 			return this->_promote;
 		}
 
-		bool operator>(const GenMove_t& m2) const
+		bool operator>(const GenMove_t& other) const
 				{
-			return this->_score > m2._score;
+			return this->_score > other._score;
+		}
+
+		bool operator==(const GenMove_t& other) const
+				{
+			return this->_from == other._from && this->_to == other._to;
 		}
 
 	private:

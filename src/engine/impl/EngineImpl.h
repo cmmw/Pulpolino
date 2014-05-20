@@ -108,6 +108,16 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_root_search(uint32_t depth)
 	std::vector<typename BOARD_T::GenMove_t> moves;
 	LineInfo info;
 	this->_movegen.gen_moves(this->_board, moves);
+	if (this->_info.moves().size() > 2)
+	{
+		auto pv = std::find(moves.begin(), moves.end(), this->_info.moves()[2]);
+		if (pv != moves.end())
+		{
+			info.follow_pv(true);
+			g_log << "set 1000 0" << std::endl;
+			pv->score(1000);
+		}
+	}
 	std::sort(moves.begin(), moves.end(), std::greater<typename BOARD_T::GenMove_t>());
 	for (const auto &it : moves)
 	{
@@ -144,6 +154,16 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_search(uint32_t depth, int32_t alpha
 	}
 
 	this->_movegen.gen_moves(this->_board, moves);
+	if (pinfo.follow_pv() && this->_info.moves().size() > this->_depth - depth + 2)
+	{
+		auto pv = std::find(moves.begin(), moves.end(), this->_info.moves()[this->_depth - depth + 2]);
+		if (pv != moves.end())
+		{
+			info.follow_pv(true);
+			pv->score(1000);
+		}
+	}
+	pinfo.follow_pv(false);
 	std::sort(moves.begin(), moves.end(), std::greater<typename BOARD_T::GenMove_t>());
 	for (const auto &it : moves)
 	{

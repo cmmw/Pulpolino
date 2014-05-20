@@ -103,10 +103,21 @@ private:
 			return this->_stalemate;
 		}
 
+		bool follow_pv()
+		{
+			return this->_follow_pv;
+		}
+
+		void follow_pv(bool val)
+		{
+			this->_follow_pv = val;
+		}
+
 	private:
 		std::vector<typename BOARD_T::GenMove_t> _moves;
 		bool _mate = false;
 		bool _stalemate = false;
+		bool _follow_pv = false;
 	};
 
 	int32_t _think();
