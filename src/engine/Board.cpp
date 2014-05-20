@@ -81,7 +81,7 @@ void Board::reset()
 
 bool Board::move(const char* move)
 {
-	square_t from_row, from_file, to_row, to_file;
+	int32_t from_row, from_file, to_row, to_file;
 	Piece_t p = EMPTY;
 	from_file = move[0] - 'a';
 	from_row = move[1] - '1';
@@ -112,17 +112,17 @@ bool Board::move(const char* move)
 
 bool Board::move(const GenMove_t& move)
 {
-	return this->move(move.from, move.to, move.promote);
+	return this->move(move.from(), move.to(), move.promote());
 }
 
-bool Board::move(uint8_t from, uint8_t to, Piece_t promote)
+bool Board::move(int32_t from, int32_t to, Piece_t promote)
 {
 	Move_t m;
 	Piece_t piece;
 	bool moved = false;
-	int8_t d = 0;
-	m.from = from;
-	m.to = to;
+	int32_t d = 0;
+	m.from = static_cast<uint8_t>(from);
+	m.to = static_cast<uint8_t>(to);
 	m.capture = this->_board[to];
 	m.orig = this->_board[from];
 
@@ -133,8 +133,8 @@ bool Board::move(uint8_t from, uint8_t to, Piece_t promote)
 	/*en passant move*/
 	if (piece == PAWN && this->get_piece(to) == BoardBase::EMPTY)
 	{
-		uint8_t row_fr = from >> 3; /*divison by 8*/
-		uint8_t row_to = to >> 3;
+		int32_t row_fr = from >> 3; /*divison by 8*/
+		int32_t row_to = to >> 3;
 		d = to - from; /*later points to the captured pawn*/
 		if (d % 8 != 0)
 		{
@@ -269,7 +269,7 @@ bool Board::move(uint8_t from, uint8_t to, Piece_t promote)
 		/*make normal or capture move*/
 		if (promote != EMPTY)
 		{
-			this->_board[to] = promote | MOVED | this->_color;
+			this->_board[to] = static_cast<square_t>(promote | MOVED | this->_color);
 		}
 		else
 		{
@@ -284,7 +284,7 @@ bool Board::move(uint8_t from, uint8_t to, Piece_t promote)
 	{
 		if (m.capture & EP)
 		{
-			this->_board[d + from] = m.capture & ~(EP | DIR);
+			this->_board[d + from] = static_cast<square_t>(m.capture & ~(EP | DIR));
 			m.capture = EMPTY;
 		}
 		this->_board[to] = m.capture;
@@ -303,7 +303,7 @@ bool Board::move(uint8_t from, uint8_t to, Piece_t promote)
 
 bool Board::in_check(Color_t c)
 {
-	for (int i = 0; i < 64; i++)
+	for (uint8_t i = 0; i < 64; i++)
 	{
 		if (this->get_piece(i) == KING && this->get_color(i) == c)
 		{
@@ -314,9 +314,9 @@ bool Board::in_check(Color_t c)
 	return false;
 }
 
-bool Board::is_attacked(Color_t c, uint8_t sq)
+bool Board::is_attacked(Color_t c, int32_t sq)
 {
-	for (int i = 0; i < 64; i++)
+	for (int8_t i = 0; i < 64; i++)
 	{
 		if (this->get_piece(i) != EMPTY && this->get_color(i) != c)
 		{
@@ -347,7 +347,7 @@ bool Board::is_attacked(Color_t c, uint8_t sq)
 				Piece_t piece = this->get_piece(i);
 				for (int j = 0; j < BoardBase::_offsets[piece]; j++)
 				{
-					for (int n = i;;)
+					for (int8_t n = i;;)
 					{
 						n = BoardBase::_mailbox[BoardBase::_mailbox64[n] + BoardBase::_offset[piece][j]];
 						if (n == sq)
@@ -380,11 +380,11 @@ bool Board::take_back()
 	{
 		if (m.capture & DIR)
 		{
-			this->_board[m.from + 1] = m.capture & ~(EP | DIR);
+			this->_board[m.from + 1] = static_cast<square_t>(m.capture & ~(EP | DIR));
 		}
 		else
 		{
-			this->_board[m.from - 1] = m.capture & ~EP;
+			this->_board[m.from - 1] = static_cast<square_t>(m.capture & ~EP);
 		}
 		this->_board[m.to] = EMPTY;
 	}
@@ -437,14 +437,14 @@ std::string Board::mov_to_str(const GenMove_t& mov)
 	static char _digit[8] =
 			{ '1', '2', '3', '4', '5', '6', '7', '8' };
 
-	char from_f = _letter[(mov.from % 8)];
-	char from_r = _digit[(mov.from >> 3)];
-	char to_f = _letter[(mov.to % 8)];
-	char to_r = _digit[(mov.to >> 3)];
+	char from_f = _letter[(mov.from() % 8)];
+	char from_r = _digit[(mov.from() >> 3)];
+	char to_f = _letter[(mov.to() % 8)];
+	char to_r = _digit[(mov.to() >> 3)];
 	char prom = EMPTY;
-	if (mov.promote != EMPTY)
+	if (mov.promote() != EMPTY)
 	{
-		switch (mov.promote)
+		switch (mov.promote())
 		{
 		case QUEEN:
 			prom = 'q';
@@ -459,9 +459,9 @@ std::string Board::mov_to_str(const GenMove_t& mov)
 			prom = 'r';
 			break;
 		case PAWN:
-		case KING:
-		case EMPTY:
-		case UNUSED:
+			case KING:
+			case EMPTY:
+			case UNUSED:
 			g_log << "info string [FATAL] error in mov_to_str" << std::endl;
 			break;
 		}
@@ -566,16 +566,16 @@ void Board::set_fen_pos(const char* fen)
 		switch (fen[i])
 		{
 		case 'K':
-			this->_board[7] &= ~MOVED;
+			this->_board[7] &= static_cast<square_t>(~MOVED);
 			break;
 		case 'Q':
-			this->_board[0] &= ~MOVED;
+			this->_board[0] &= static_cast<square_t>(~MOVED);
 			break;
 		case 'k':
-			this->_board[63] &= ~MOVED;
+			this->_board[63] &= static_cast<square_t>(~MOVED);
 			break;
 		case 'q':
-			this->_board[56] &= ~MOVED;
+			this->_board[56] &= static_cast<square_t>(~MOVED);
 			break;
 		case '-':
 			break;

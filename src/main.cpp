@@ -12,10 +12,10 @@
 #include <iterator>
 #include <sstream>
 
+#include "engine/Engine.h"
 #include "engine/Board.h"
 #include "engine/Evaluator.h"
 
-#include "main.h"
 #include "tests/Test.h"
 #include "globals.h"
 
@@ -32,11 +32,13 @@ void run_tests()
 	test::Generator::ep<eng::Board, eng::MoveGenerator<eng::Board>>();
 	test::Generator::checks<eng::Board, eng::MoveGenerator<eng::Board>>();
 	test::Generator::calc<eng::Board, eng::MoveGenerator<eng::Board>>();
+	g_log << "All tests ok" << std::endl;
 }
 
 /*TODO use concepts for template parameter*/
 int main()
 {
+
 //	run_tests();
 	eng::Engine<eng::Board, eng::MoveGenerator<eng::Board>, eng::Evaluator<eng::Board>> engine;
 	engine.start();

@@ -18,10 +18,10 @@ namespace eng
  *
  * Functions:
  *
- * BOARD_T::Piece_t get_piece(uint8_t idx)
- * BOARD_T::Color_t get_color(uint8_t idx)
+ * BOARD_T::Piece_t get_piece(int32_t idx)
+ * BOARD_T::Color_t get_color(int32_t idx)
  * BOARD_T::Color_t get_color()									returns the color which is to move
- * BOARD_T::GenMov_t gen_mov(uint8_t from, uint8_t to);		build a GenMov_t with given arguments, needed to create a list of moves
+ * BOARD_T::GenMov_t gen_mov(int32_t from, int32_t to);		build a GenMov_t with given arguments, needed to create a list of moves
  *
  *
  * Members/Enums:
@@ -49,6 +49,19 @@ public:
 	MoveGenerator& operator=(const MoveGenerator&) = delete;
 
 	void gen_moves(BOARD_T& board, std::vector<typename BOARD_T::GenMove_t>& moves);
+
+private:
+
+	/*Scoring for different generated moves, only used for ordering in search*/
+	enum Score_t
+	{
+		SCR_CAPT = 50, /*Capture piece with piece*/
+		SCR_PAW_CAPT = 150, /*Capture piece/pawn with pawn*/
+		SCR_EP_CAPT = 80, /*en passant*/
+		SCR_CAST = 0, /*castle*/
+		SCR_PRO = 100, /*promote*/
+		SCR_PRO_CAPT = 150, /*promote with capture*/
+	};
 
 };
 

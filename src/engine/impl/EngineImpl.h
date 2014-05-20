@@ -108,6 +108,7 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_root_search(uint32_t depth)
 	std::vector<typename BOARD_T::GenMove_t> moves;
 	LineInfo info;
 	this->_movegen.gen_moves(this->_board, moves);
+	std::sort(moves.begin(), moves.end(), std::greater<typename BOARD_T::GenMove_t>());
 	for (const auto &it : moves)
 	{
 		if (!this->_board.move(it))
@@ -143,6 +144,7 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_search(uint32_t depth, int32_t alpha
 	}
 
 	this->_movegen.gen_moves(this->_board, moves);
+	std::sort(moves.begin(), moves.end(), std::greater<typename BOARD_T::GenMove_t>());
 	for (const auto &it : moves)
 	{
 		if (!this->_board.move(it))
@@ -258,7 +260,7 @@ void Engine<BOARD_T, MOVGEN_T, EVAL_T>::_uci_input_th()
 		}
 		else if (!cmd.compare(0, 2, "go"))
 		{
-			if (cmd.length() > 2 && !cmd.substr(3).compare(0,5,"depth"))
+			if (cmd.length() > 2 && !cmd.substr(3).compare(0, 5, "depth"))
 			{
 				int32_t d = strtol(cmd.c_str() + 9, NULL, 10);
 				if (d > 0)

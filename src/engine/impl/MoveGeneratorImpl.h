@@ -41,7 +41,7 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOAR
 
 			if (castle)
 			{
-				moves.push_back(board.gen_mov(4, 2));
+				moves.push_back(board.gen_mov(4, 2, SCR_CAST));
 			}
 		}
 
@@ -60,7 +60,7 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOAR
 
 			if (castle)
 			{
-				moves.push_back(board.gen_mov(4, 6));
+				moves.push_back(board.gen_mov(4, 6, SCR_CAST));
 			}
 		}
 	}
@@ -82,7 +82,7 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOAR
 
 			if (castle)
 			{
-				moves.push_back(board.gen_mov(60, 58));
+				moves.push_back(board.gen_mov(60, 58, SCR_CAST));
 			}
 		}
 
@@ -100,22 +100,22 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOAR
 
 			if (castle)
 			{
-				moves.push_back(board.gen_mov(60, 62));
+				moves.push_back(board.gen_mov(60, 62, SCR_CAST));
 			}
 		}
 
 	}
 
-	for (int i = 0; i < 64; i++)
+	for (int32_t i = 0; i < 64; i++)
 	{
 		piece = board.get_piece(i);
 		if (board.get_color(i) == c1 && piece != BoardBase::EMPTY)
 		{
 			if (piece != BoardBase::PAWN)
 			{
-				for (int j = 0; j < BoardBase::_offsets[piece]; j++)
+				for (int32_t j = 0; j < BoardBase::_offsets[piece]; j++)
 				{
-					for (int n = i;;)
+					for (int32_t n = i;;)
 					{
 						n = BoardBase::_mailbox[BoardBase::_mailbox64[n] + BoardBase::_offset[piece][j]];
 
@@ -126,7 +126,7 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOAR
 						{
 							if (board.get_color(n) == c2)
 							{
-								moves.push_back(board.gen_mov(i, n));
+								moves.push_back(board.gen_mov(i, n, SCR_CAPT));
 							}
 							break;
 						}
@@ -152,7 +152,7 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOAR
 					if ((c1 == BOARD_T::WHITE && row == 6) || (c1 == BOARD_T::BLACK && row == 1))
 					{
 						for (int j = 1; j < 5; j++)
-							moves.push_back(board.gen_mov(i, i + (step * 8), static_cast<BoardBase::Piece_t>(j)));
+							moves.push_back(board.gen_mov(i, i + (step * 8), SCR_PRO, static_cast<BoardBase::Piece_t>(j)));
 					}
 					else
 					{
@@ -165,7 +165,7 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOAR
 				}
 
 				/*pawn capture*/
-				int32_t n;
+				int8_t n;
 				n = BoardBase::_mailbox[BoardBase::_mailbox64[i] + step + (step * 10)]; /*10 = offset in mailbox for pawns*/
 				if (n != -1 && board.get_piece(n) != BoardBase::EMPTY)
 				{
@@ -173,12 +173,12 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOAR
 					{
 						if ((c1 == BOARD_T::WHITE && row == 6) || (c1 == BOARD_T::BLACK && row == 1))
 						{
-							for (int j = 1; j < 5; j++)
-								moves.push_back(board.gen_mov(i, n, static_cast<BoardBase::Piece_t>(j)));
+							for (uint8_t j = 1; j < 5; j++)
+								moves.push_back(board.gen_mov(i, n, SCR_PRO_CAPT, static_cast<BoardBase::Piece_t>(j)));
 						}
 						else
 						{
-							moves.push_back(board.gen_mov(i, n));
+							moves.push_back(board.gen_mov(i, n, SCR_PAW_CAPT));
 						}
 					}
 				}
@@ -191,11 +191,11 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOAR
 						if ((c1 == BOARD_T::WHITE && row == 6) || (c1 == BOARD_T::BLACK && row == 1))
 						{
 							for (int j = 1; j < 5; j++)
-								moves.push_back(board.gen_mov(i, n, static_cast<BoardBase::Piece_t>(j)));
+								moves.push_back(board.gen_mov(i, n, SCR_PRO_CAPT, static_cast<BoardBase::Piece_t>(j)));
 						}
 						else
 						{
-							moves.push_back(board.gen_mov(i, n));
+							moves.push_back(board.gen_mov(i, n, SCR_PAW_CAPT));
 						}
 					}
 				}
@@ -206,13 +206,13 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOAR
 					if (row == 4 && board.get_piece(i - 1) == BoardBase::PAWN && board.get_color(i - 1) == BOARD_T::BLACK && c1 == BOARD_T::WHITE)
 					{
 						if (board.get_piece(i + 8 - 1) == BoardBase::EMPTY)
-							moves.push_back(board.gen_mov(i, i + 8 - 1));
+							moves.push_back(board.gen_mov(i, i + 8 - 1, SCR_EP_CAPT));
 					}
 
 					if (row == 3 && board.get_piece(i - 1) == BoardBase::PAWN && board.get_color(i - 1) == BOARD_T::WHITE && c1 == BOARD_T::BLACK)
 					{
 						if (board.get_piece(i - 8 - 1) == BoardBase::EMPTY)
-							moves.push_back(board.gen_mov(i, i - 8 - 1));
+							moves.push_back(board.gen_mov(i, i - 8 - 1, SCR_EP_CAPT));
 					}
 				}
 
@@ -221,13 +221,13 @@ void MoveGenerator<BOARD_T>::gen_moves(BOARD_T& board, std::vector<typename BOAR
 					if (row == 4 && board.get_piece(i + 1) == BoardBase::PAWN && board.get_color(i + 1) == BOARD_T::BLACK && c1 == BOARD_T::WHITE)
 					{
 						if (board.get_piece(i + 8 + 1) == BoardBase::EMPTY)
-							moves.push_back(board.gen_mov(i, i + 8 + 1));
+							moves.push_back(board.gen_mov(i, i + 8 + 1, SCR_EP_CAPT));
 					}
 
 					if (row == 3 && board.get_piece(i + 1) == BoardBase::PAWN && board.get_color(i + 1) == BOARD_T::WHITE && c1 == BOARD_T::BLACK)
 					{
 						if (board.get_piece(i - 8 + 1) == BoardBase::EMPTY)
-							moves.push_back(board.gen_mov(i, i - 8 + 1));
+							moves.push_back(board.gen_mov(i, i - 8 + 1, SCR_EP_CAPT));
 					}
 				}
 

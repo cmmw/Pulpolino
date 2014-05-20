@@ -100,7 +100,7 @@ int32_t Evaluator<BOARD_T>::operator()(BOARD_T& board)
 	int32_t val = 0;
 	int32_t idx, one;
 
-	for (int i = 0; i < 64; i++)
+	for (int8_t i = 0; i < 64; i++)
 	{
 		typename BOARD_T::Piece_t piece = board.get_piece(i);
 		typename BOARD_T::Color_t color = board.get_color(i);
