@@ -114,7 +114,6 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_root_search(uint32_t depth)
 		if (pv != moves.end())
 		{
 			info.follow_pv(true);
-			g_log << "set 1000 0" << std::endl;
 			pv->score(1000);
 		}
 	}

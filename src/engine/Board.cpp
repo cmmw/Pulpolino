@@ -613,7 +613,7 @@ void Board::set_fen_pos(const char* fen)
 	i++;
 	memset(tmp, 0, sizeof(tmp));
 	j = 0;
-	while (fen[i] != 0)
+	while (fen[i] != 0 && fen[i] != ' ')
 	{
 		tmp[j] = fen[i];
 		j++;
@@ -621,7 +621,7 @@ void Board::set_fen_pos(const char* fen)
 	}
 	this->_mov = strtol(tmp, NULL, 10);
 
-	if (i != strlen(fen))
+	if (strncmp(fen + i, " moves", 6) != 0 && i != strlen(fen))
 	{
 		g_log << "info string [WARNING] fen string parse problem " << std::endl;
 	}
