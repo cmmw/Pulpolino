@@ -21,8 +21,6 @@ class Board: public BoardBase
 {
 public:
 
-	typedef uint8_t square_t;
-
 	class GenMove_t
 	{
 	public:
@@ -130,6 +128,8 @@ public:
 
 private:
 
+	typedef uint8_t square_t;
+
 	struct Move_t
 	{
 		uint8_t from;
@@ -158,8 +158,7 @@ private:
 	uint32_t _mov = 0;
 	int32_t _ep = -1; /*fen string ep*/
 
-}
-;
+};
 
 } /* namespace eng */
 

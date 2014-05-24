@@ -13,7 +13,7 @@
 namespace eng
 {
 
-const uint8_t Board::init_board[] =
+const Board::square_t Board::init_board[] =
 
 {
 		ROOK | WHITE, KNIGHT | WHITE, BISHOP | WHITE, QUEEN | WHITE, KING | WHITE, BISHOP | WHITE, KNIGHT | WHITE, ROOK | WHITE,
