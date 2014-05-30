@@ -68,6 +68,7 @@ private:
 			this->_moves.clear();
 			this->_mate = false;
 			this->_stalemate = false;
+			this->_follow_pv = false;
 		}
 
 		void operator<<(const LineInfo& other)
@@ -123,6 +124,7 @@ private:
 	int32_t _think();
 	int32_t _root_search(uint32_t);
 	int32_t _search(uint32_t depth, int32_t alpha, int32_t beta, LineInfo& info);
+	int32_t _quiescence(int32_t alpha, int32_t beta, LineInfo& info);
 
 	typename BOARD_T::GenMove_t _bestmove;
 	LineInfo _info;

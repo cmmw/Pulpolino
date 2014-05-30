@@ -25,12 +25,12 @@ public:
 	{
 	public:
 		GenMove_t() :
-				_from(0), _to(0), _score(0), _promote(BoardBase::EMPTY)
+				_from(0), _to(0), _score(0), _promote(BoardBase::EMPTY), _capture(false)
 		{
 
 		}
-		GenMove_t(int32_t from, int32_t to, int32_t score, Piece_t promote) :
-				_from(static_cast<uint8_t>(from)), _to(static_cast<uint8_t>(to)), _score(score), _promote(promote)
+		GenMove_t(int32_t from, int32_t to, int32_t score, Piece_t promote, bool capture) :
+				_from(static_cast<uint8_t>(from)), _to(static_cast<uint8_t>(to)), _score(score), _promote(promote), _capture(capture)
 		{
 		}
 
@@ -59,6 +59,11 @@ public:
 			return this->_promote;
 		}
 
+		inline bool capture() const
+		{
+			return this->_capture;
+		}
+
 		bool operator>(const GenMove_t& other) const
 				{
 			return this->_score > other._score;
@@ -74,6 +79,7 @@ public:
 		uint8_t _to;
 		int32_t _score;
 		Piece_t _promote;
+		bool _capture;
 	};
 
 	enum Color_t
@@ -110,9 +116,14 @@ public:
 
 	inline GenMove_t gen_mov(int32_t from, int32_t to, int32_t score = 0, Piece_t p = EMPTY)
 	{
-		return
-		{	from, to, score, p};
+		if ((this->_board[to] & PIECE) != EMPTY)
+			return
+			{	from, to, score, p, true};
+		else
+			return
+			{	from, to, score, p, false};
 	}
+
 	/*color of current player to move in this position*/
 	inline Color_t get_color()
 	{

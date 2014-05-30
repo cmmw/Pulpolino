@@ -149,8 +149,13 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_search(uint32_t depth, int32_t alpha
 	if (depth == 0 || this->_stop.load())
 	{
 		this->_nodes++;
-		return this->_eval(this->_board);
+		pinfo.reset();
+		return this->_quiescence(alpha, beta, pinfo);
 	}
+
+	/*If we are in check we search deeper*/
+	if (this->_board.in_check(this->_board.get_color()))
+		depth++;
 
 	this->_movegen.gen_moves(this->_board, moves);
 	if (pinfo.follow_pv() && this->_info.moves().size() > this->_depth - depth + 2)
@@ -198,6 +203,49 @@ int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_search(uint32_t depth, int32_t alpha
 		}
 	}
 
+	return alpha;
+}
+
+template<class BOARD_T, class MOVGEN_T, class EVAL_T>
+int32_t Engine<BOARD_T, MOVGEN_T, EVAL_T>::_quiescence(int32_t alpha, int32_t beta, LineInfo& pinfo)
+{
+	int32_t val;
+	LineInfo info;
+	std::vector<typename BOARD_T::GenMove_t> moves;
+
+	val = this->_eval(this->_board);
+	if (val >= beta)
+		return beta;
+
+	if (val > alpha)
+		alpha = val;
+
+	this->_movegen.gen_moves(this->_board, moves);
+	std::sort(moves.begin(), moves.end(), std::greater<typename BOARD_T::GenMove_t>());
+
+	for (const auto &it : moves)
+	{
+		/*TODO break out of loop after first move with score == 0 appears*/
+		if (!it.capture())
+			continue;
+		if (!this->_board.move(it))
+			continue;
+		val = -this->_quiescence(-beta, -alpha, info);
+		this->_board.take_back();
+		if (val >= beta)
+			return beta;
+
+		if (val > alpha)
+		{
+			alpha = val;
+
+			/*update pv*/
+			pinfo.reset();
+			pinfo.add_move(it);
+			pinfo << info;
+		}
+//		info.reset();	/*TODO CHECK if this is needed here*/
+	}
 	return alpha;
 }
 
